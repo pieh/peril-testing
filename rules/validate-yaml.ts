@@ -1,5 +1,5 @@
 import { danger, message } from 'danger';
-import fs from 'fs'
+import * as fs from 'fs'
 
 export const validateYaml = () => {
   message(`files ${danger.git.modified_files.join(', ')}`)
