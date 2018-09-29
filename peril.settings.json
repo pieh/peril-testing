@@ -1,0 +1,14 @@
+{
+  "$schema": "https://raw.githubusercontent.com/danger/peril/master/peril-settings-json.schema",
+  "settings": {
+    "ignored_repos": [],
+    "env_vars": [],
+    "modules": []
+  },
+  "rules": {},
+  "repos": {
+    "pieh/peril-testing" : {
+      "pull_request": ["rules/validate-yaml.js"]
+    }
+  }
+}
