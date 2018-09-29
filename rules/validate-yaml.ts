@@ -32,8 +32,6 @@ export const validateYaml = async () => {
         fail(`${filePath}: item #${index+1} optional 'description' property need to be string`)
       }
     })
-
-    message(`${filePath} content:\n${content}`)
   } catch (e) {
     fail(`${filePath} is not valid:\n${e.message}`)
   }
