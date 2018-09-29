@@ -5,5 +5,5 @@ export const validateYaml = () => {
 };
 
 export default async () => {
-  validateYaml();
+  validateYaml()
 };

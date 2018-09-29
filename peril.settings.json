@@ -8,7 +8,7 @@
   "rules": {},
   "repos": {
     "pieh/peril-testing" : {
-      "pull_request": ["rules/validate-yaml.js"]
+      "pull_request": ["rules/validate-yaml.ts"]
     }
   }
 }
