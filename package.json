@@ -6,6 +6,8 @@
   "author": "Michal Piechowiak <misiek.piechowiak@gmail.com>",
   "license": "MIT",
   "dependencies": {
-    "danger": "^4.0.2"
+    "@types/js-yaml": "^3.11.2",
+    "danger": "^4.0.2",
+    "js-yaml": "^3.12.0"
   }
 }
