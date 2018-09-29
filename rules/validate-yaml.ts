@@ -2,6 +2,7 @@ import { danger, message } from 'danger';
 import fs from 'fs'
 
 export const validateYaml = () => {
+  message(`files ${danger.git.modified_files.join(', ')}`)
   if (!(`test.yaml` in danger.git.modified_files)) {
     return
   }
