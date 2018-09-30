@@ -14,7 +14,7 @@ const getTestSchema = () => {
     base: joi.string(),
     name: 'string',
     language: {
-      supportedExtension: 'need to use supported extension {{q.join(", ")}}'
+      supportedExtension: 'need to use supported extension {{q}}'
     },
     rules: [
       {
