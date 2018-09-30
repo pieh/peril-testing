@@ -8,6 +8,7 @@
   "devDependencies": {
     "@types/joi": "^13.6.0",
     "@types/js-yaml": "^3.11.2",
+    "@types/node": "^10.11.3",
     "danger": "^4.0.2",
     "joi": "^13.7.0",
     "js-yaml": "^3.12.0"

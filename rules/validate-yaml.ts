@@ -1,4 +1,4 @@
-import { danger, message, fail } from 'danger';
+import { danger, fail } from 'danger';
 import { load as yamlLoad } from 'js-yaml'
 import * as Joi from 'joi'
 import * as path from 'path'
@@ -6,14 +6,6 @@ import * as path from 'path'
 const supportedImageExts = ['.jpg', '.jpeg']
 const uriOptions = { scheme: [`https`, `http`] }
 const githubRepoRegex: RegExp = new RegExp(`^https?:\/\/github.com\/[^/]+/[^/]+$`)
-
-interface SuppertedExtensionArgs {
-  q: string[]
-}
-
-interface FileExistsArgs {
-  q: string[]
-}
 
 const getExistingFiles = async (path: string, base: string) => {
   const [owner, repo] = danger.github.pr.head.repo.full_name.split('/')
@@ -35,8 +27,7 @@ const customJoi = Joi.extend((joi: any) => ({
       params: {
         q: joi.array().items(joi.string())
       },
-      validate(this: Joi.ExtensionBoundSchema, params: SuppertedExtensionArgs, value: string, state: any, options: any): any {
-        // const that : Joi.ExtensionBoundSchema = this
+      validate(this: Joi.ExtensionBoundSchema, params: { q: string[] }, value: string, state: any, options: any): any {
         if (!params.q.includes(path.extname(value))) {
           return this.createError('string.supportedExtension', { v: value, q: params.q }, state, options)
         }
@@ -49,7 +40,7 @@ const customJoi = Joi.extend((joi: any) => ({
       params: {
         q: joi.array().items(joi.string())
       },
-      validate(this: Joi.ExtensionBoundSchema, params: FileExistsArgs, value: string, state: any, options: any): any {
+      validate(this: Joi.ExtensionBoundSchema, params: { q: string[] }, value: string, state: any, options: any): any {
         if (!params.q.includes(value)) {
           return this.createError('string.fileExists', { v: value, q: params.q }, state, options)
         }
@@ -174,6 +165,7 @@ export const validateYaml = async () => {
           fail(`## ${filePath} didn't pass validation:\n\n${errors.join('\n---\n')}`)
         }
       } catch (e) {
+        console.log('e', e)
         fail(`## ${filePath} is not valid YAML file:\n\n\`\`\`${e.message}\n\`\`\``)
       }
     })
