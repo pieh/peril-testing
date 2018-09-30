@@ -7,6 +7,6 @@
   description: 5
 # bad image (not existing path), missing optional description (which is fine)
 - name: Sit
-  image: images/doesnt-exist.txt
+  image: images/this-doesnt-exist.txt
 # missing name, bad image format
 - image: images/c.svg
