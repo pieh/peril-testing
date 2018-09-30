@@ -1,4 +1,5 @@
 - name: Lorem
   description: Ipsum
+  image: images/a.txt
 - name: Dolor
-  description: Sit
+  description: 9
