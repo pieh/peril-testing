@@ -78,7 +78,7 @@ export const validateYaml = async () => {
         const content = yamlLoad(textContent)
         const result = Joi.validate(content, await schemaFn(), { abortEarly: false})
         if (result.error) {
-          console.log(error)
+          console.log(result.error)
           fail(`${filePath} didn't pass validation:\n${result.error}`)
         }
       } catch (e) {
