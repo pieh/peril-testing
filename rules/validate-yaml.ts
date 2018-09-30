@@ -8,7 +8,15 @@ const supportedExts = ['.txt']
 const getSitesSchema = () => {
   return Joi.array().items(
     Joi.object().keys({
-
+      title: Joi.string().required(),
+      url: Joi.string().required(),
+      main_url: Joi.string().required(),
+      source_url: Joi.string(),
+      description: Joi.string(),
+      categories: Joi.array().items(Joi.string()),
+      built_by: Joi.string(),
+      built_by_url: Joi.string(),
+      featured: Joi.boolean()
     })
   )
 }
@@ -56,7 +64,7 @@ const getTestSchema = async () => {
 
 const fileSchemas = {
   "data/test.yaml": getTestSchema,
-  // "docs/sites.yml": getSitesSchema,
+  "docs/sites.yml": getSitesSchema,
 }
 
 export const validateYaml = async () => {
