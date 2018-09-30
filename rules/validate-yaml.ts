@@ -31,7 +31,8 @@ const getCreatorsSchema = () => {
       type: Joi.string().valid(['individual', 'agency', 'company']).required(),
       description: Joi.string(),
       location: Joi.string(),
-      github: Joi.string(),
+      // optional allow for github: null
+      github: Joi.string().optional(),
     }).unknown()
   )
 }
