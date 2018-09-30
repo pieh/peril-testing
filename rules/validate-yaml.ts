@@ -24,6 +24,18 @@ const getSitesSchema = () => {
   )
 }
 
+const getCreatorsSchema = () => {
+  return Joi.array().items(
+    Joi.object().keys({
+      name: Joi.string().required(),
+      type: Joi.string().valid(['individual', 'agency', 'company']).required(),
+      description: Joi.string(),
+      location: Joi.string(),
+      github: Joi.string(),
+    }).unknown()
+  )
+}
+
 const getTestSchema = async () => {
   const [owner, repo] = danger.github.pr.head.repo.full_name.split('/')
   const imagesDirReponse = await danger.github.api.repos.getContent({repo, owner, path: 'data/images/'})
@@ -68,6 +80,7 @@ const getTestSchema = async () => {
 const fileSchemas = {
   "data/test.yaml": getTestSchema,
   "docs/sites.yml": getSitesSchema,
+  "docs/community/creators.yml": getCreatorsSchema,
 }
 
 export const validateYaml = async () => {
@@ -94,7 +107,6 @@ export const validateYaml = async () => {
                 detail.message
               ]
             }
-            console.log(detail)
           })
 
           const errors = Object.entries(customErrors).map(([index, errors]: [string, string[]])=> {
