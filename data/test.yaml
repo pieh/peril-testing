@@ -9,5 +9,5 @@
 - name: Sit
   image: images/this-doesnt-exist.txt
 # missing name, bad image format
-- image: images/c.svg
+- image: images/c.txt
   name: name
