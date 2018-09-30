@@ -95,14 +95,19 @@ const getCreatorsSchema = async () => {
 }
 
 const getAuthorsSchema = async () => {
-  return Joi.array().unique('id').items(
+  return Joi.array().items(
     Joi.object().keys({
       id: Joi.string().required(),
       bio: Joi.string().required(),
       avatar: customJoi.string().supportedExtension(supportedImageExts).fileExists(await getExistingFiles('docs/blog/avatars', 'avatars')).required(),
       twitter: Joi.string(),
     })
-  )
+  ).unique('id').error(errors => {
+    return errors.map(error => {
+      console.log(error)
+      return error
+    })
+  })
 }
 
 const fileSchemas = {
