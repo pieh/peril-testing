@@ -6,7 +6,7 @@ const filePath = "data/test.yaml"
 const supportedExts = ['.txt']
 
 export const validateYaml = async () => {
-  console.log('validating2', danger)
+  console.log('validating2')
 
    if (!(danger.git.modified_files.includes(filePath))) {
     console.log(`no ${filePath} in changed files`)
