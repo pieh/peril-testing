@@ -19,6 +19,7 @@ const getSitesSchema = () => {
       featured: Joi.boolean(),
       date_added: Joi.string(),
       gatsby_version: Joi.string(),
+      plugins: Joi.array().items(Joi.string()),
     })
   )
 }
@@ -80,10 +81,31 @@ export const validateYaml = async () => {
         const content = yamlLoad(textContent)
         const result = Joi.validate(content, await schemaFn(), { abortEarly: false})
         if (result.error) {
+          const customErrors = {}
           result.error.details.forEach(detail => {
+            if (detail.path.length > 0) {
+              const index = detail.path[0]
+              if (!customErrors[index]) {
+                customErrors[index] = []
+              }
+              customErrors[index].push(detail.message)
+            } else {
+              customErrors['root'] = [
+                detail.message
+              ]
+            }
             console.log(detail)
           })
-          fail(`${filePath} didn't pass validation:\n${result.error}`)
+
+          const errors = Object.entries(customErrors).map(([index, errors]: [string, string[]])=> {
+            if (index === 'root') {
+              return errors.join('\n')
+            } else {
+              return `Entry:'n${content[index]}\nfailed validation:\n${errors.join('\n')}`
+            }
+          })
+
+          fail(`${filePath} didn't pass validation:\n${errors.join('\n\n')}`)
         }
       } catch (e) {
         fail(`${filePath} is not valid:\n${e.message}`)
