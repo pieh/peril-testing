@@ -103,7 +103,7 @@ export const validateYaml = async () => {
               return errors.map(msg => ` - ${msg}`).join('\n')
             } else {
               const errorsString = errors.map(msg => `  - ${msg}`).join('\n')
-              return `- \`\`\`json\n${JSON.stringify(content[index], null, 2).split('\n').map(line => `  ${line}`).join('\n')}\n  \`\`\`\n  failed validation:\n${errorsString}`
+              return `- \`\`\`json\n${JSON.stringify(content[index], null, 2).split('\n').map(line => `  ${line}`).join('\n')}\n  \`\`\`\n  **Errors**:\n${errorsString}`
             }
           })
 
