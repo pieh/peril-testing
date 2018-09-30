@@ -51,7 +51,7 @@ export const validateYaml = async () => {
       } else if (!images.includes(image)) {
         fail(`${filePath}: item #${index+1} 'image' ${image} doesn't point to existing file`)
       } else if (!supportedExts.includes(path.extname(image))) {
-        fail(`${filePath}: item #${index+1} 'image' ${image} use unsporrted file format - use one of following: ${supportedExts.join(', ')}`)
+        fail(`${filePath}: item #${index+1} 'image' ${image} unsporrted file format - use one of following: ${supportedExts.join(', ')}`)
       }
 
     })
