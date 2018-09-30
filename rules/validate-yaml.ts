@@ -83,6 +83,7 @@ const getCreatorsSchema = async () => {
       type: Joi.string().valid(['individual', 'agency', 'company']).required(),
       description: Joi.string(),
       location: Joi.string(),
+      // need to explicitely allow `null` to not fail on github: null fields
       github: Joi.string().allow(null),
       website: Joi.string(),
       for_hire: Joi.boolean(),
