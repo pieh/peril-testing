@@ -19,7 +19,7 @@ const getSitesSchema = () => {
       featured: Joi.boolean(),
       date_added: Joi.string(),
       gatsby_version: Joi.string(),
-      plugins: Joi.array().items(Joi.string()),
+      plugins: Joi.string()
     })
   )
 }
