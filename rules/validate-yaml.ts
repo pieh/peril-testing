@@ -15,7 +15,7 @@ interface FileExistsArgs {
 
 const getExistingFiles = async (path, base) => {
   const [owner, repo] = danger.github.pr.head.repo.full_name.split('/')
-  const imagesDirReponse = await danger.github.api.repos.getContent({repo, owner, path})
+  const imagesDirReponse = await danger.github.api.repos.getContent({ repo, owner, path, ref: danger.github.pr.head.ref })
   const files = imagesDirReponse.data.map(({ name }) => `${base}/${name}`)
   return files
 }
