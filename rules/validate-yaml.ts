@@ -102,12 +102,14 @@ const getAuthorsSchema = async () => {
       avatar: customJoi.string().supportedExtension(supportedImageExts).fileExists(await getExistingFiles('docs/blog/avatars', 'avatars')).required(),
       twitter: Joi.string(),
     })
-  ).unique('id').error(errors => {
-    return errors.map(error => {
-      console.log(error)
-      return error
-    })
-  })
+  ).unique('id')
+  // .error(errors => {
+  //   return errors.map(error => {
+
+  //     console.log(error)
+  //     return error
+  //   })
+  // })
 }
 
 const fileSchemas = {
@@ -128,6 +130,8 @@ export const validateYaml = async () => {
         const result = Joi.validate(content, await schemaFn(), { abortEarly: false})
         if (result.error) {
           const customErrors = {}
+          console.log(result.error)
+          console.log(result.error.details)
           result.error.details.forEach(detail => {
             if (detail.path.length > 0) {
               const index = detail.path[0]
