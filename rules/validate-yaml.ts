@@ -16,7 +16,9 @@ const getSitesSchema = () => {
       categories: Joi.array().items(Joi.string()),
       built_by: Joi.string(),
       built_by_url: Joi.string(),
-      featured: Joi.boolean()
+      featured: Joi.boolean(),
+      date_added: Joi.string(),
+      gatsby_version: Joi.string(),
     })
   )
 }
@@ -78,7 +80,9 @@ export const validateYaml = async () => {
         const content = yamlLoad(textContent)
         const result = Joi.validate(content, await schemaFn(), { abortEarly: false})
         if (result.error) {
-          console.log(result.error)
+          result.error.details.forEach(detail => {
+            console.log(detail)
+          })
           fail(`${filePath} didn't pass validation:\n${result.error}`)
         }
       } catch (e) {
