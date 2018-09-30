@@ -103,13 +103,6 @@ const getAuthorsSchema = async () => {
       twitter: Joi.string(),
     })
   ).unique('id')
-  // .error(errors => {
-  //   return errors.map(error => {
-
-  //     console.log(error)
-  //     return error
-  //   })
-  // })
 }
 
 const fileSchemas = {
@@ -130,8 +123,6 @@ export const validateYaml = async () => {
         const result = Joi.validate(content, await schemaFn(), { abortEarly: false})
         if (result.error) {
           const customErrors = {}
-          console.log(result.error)
-          console.log(result.error.details)
           result.error.details.forEach(detail => {
             if (detail.path.length > 0) {
               const index = detail.path[0]
@@ -141,6 +132,7 @@ export const validateYaml = async () => {
 
               let message = detail.message
               if (detail.type === 'array.unique') {
+                // by default it doesn't say what field is not unique
                 message = `"${detail.context.path}" is not unique`
               }
 
