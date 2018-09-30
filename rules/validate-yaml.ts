@@ -117,7 +117,7 @@ const getStartersSchema = () => {
       features: Joi.array().items(Joi.string()),
       date: Joi.date()
     })
-  )
+  ).unique('url').unique('repo')
 }
 
 const fileSchemas = {
