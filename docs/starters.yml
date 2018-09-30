@@ -740,8 +740,8 @@
     - Baseline grid built in with modular scale across viewports.
     - Abstract measurements utilize REM for spacing.
     - One font to rule them all, Helvetica.
-- url: dschau.github.io/gatsby-blog-starter-kit/
-  repo: github.com/dschau/gatsby-blog-starter-kit
+- url: www.without-http-protocol.com
+  repo: www.without-http-protocol.com
   description: n/a
 
 
