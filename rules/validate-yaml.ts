@@ -88,7 +88,7 @@ const getCreatorsSchema = async () => {
       for_hire: Joi.boolean(),
       portfolio: Joi.boolean(),
       hiring: Joi.boolean(),
-      image: customJoi.string().supportedExtension(supportedExts).fileExists(getExistingFiles('docs/community/images', 'images'))
+      image: customJoi.string().supportedExtension(supportedExts).fileExists(await getExistingFiles('docs/community/images', 'images'))
     })
   )
 }
