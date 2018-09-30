@@ -9,7 +9,12 @@ const supportedExts = ['.txt']
 
 
 
-const getTestSchema = () => {
+const getTestSchema = async () => {
+    const [owner, repo] = danger.github.pr.head.repo.full_name.split('/')
+    const imagesDirReponse = await danger.github.api.repos.getContent({repo, owner, path: 'data/images/'})
+    const images = imagesDirReponse.data.map(({name}) => `images/${name}`)
+
+
   const customJoi = Joi.extend(joi => ({
     base: joi.string(),
     name: 'string',
@@ -37,7 +42,7 @@ const getTestSchema = () => {
     Joi.object().keys({
       name: Joi.string().required(),
       description: Joi.string(),
-      image: customJoi.string().supportedExtension(['.txt']),
+      image: customJoi.string().valid(images).supportedExtension(['.txt']),
     })
   )
 }
@@ -55,7 +60,7 @@ export const validateYaml = async () => {
     // console.log('b')
     const content = yamlLoad(textContent)
 
-    const result = Joi.validate(content, getTestSchema())
+    const result = Joi.validate(content, await getTestSchema())
     if (result.error) {
       fail(`${filePath} didn't pass validation:\n${result.error}`)
     }
