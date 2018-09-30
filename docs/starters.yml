@@ -740,15 +740,9 @@
     - Baseline grid built in with modular scale across viewports.
     - Abstract measurements utilize REM for spacing.
     - One font to rule them all, Helvetica.
-- url: https://dschau.github.io/gatsby-blog-starter-kit/
-  repo: https://github.com/dschau/gatsby-blog-starter-kit
+- url: dschau.github.io/gatsby-blog-starter-kit/
+  repo: github.com/dschau/gatsby-blog-starter-kit
   description: n/a
-  tags:
-    - blog
-  features:
-    - Blog post listing with previews for each blog post
-    - Navigation between posts with a previous/next post button
-    - Tags and tag navigation
 
 
 
