@@ -13,9 +13,9 @@ interface FileExistsArgs {
   q: string[]
 }
 
-const getExistingFiles = async (path, base) => {
+const getExistingFiles = async (path: string, base: string) => {
   const [owner, repo] = danger.github.pr.head.repo.full_name.split('/')
-  const imagesDirReponse = await danger.github.api.repos.getContent({ repo, owner, path, ref: danger.github.pr.head.ref })
+  const imagesDirReponse: { data: {name: string}[] } = await danger.github.api.repos.getContent({ repo, owner, path, ref: danger.github.pr.head.ref })
   const files = imagesDirReponse.data.map(({ name }) => `${base}/${name}`)
   return files
 }
@@ -33,7 +33,8 @@ const customJoi = Joi.extend((joi: any) => ({
       params: {
         q: joi.array().items(joi.string())
       },
-      validate(params: SuppertedExtensionArgs, value, state, options): any {
+      validate(this: Joi.ExtensionBoundSchema, params: SuppertedExtensionArgs, value: string, state: any, options: any): any {
+        // const that : Joi.ExtensionBoundSchema = this
         if (!params.q.includes(path.extname(value))) {
           return this.createError('string.supportedExtension', { v: value, q: params.q }, state, options)
         }
@@ -46,7 +47,7 @@ const customJoi = Joi.extend((joi: any) => ({
       params: {
         q: joi.array().items(joi.string())
       },
-      validate(params: FileExistsArgs, value, state, options): Promise<any> {
+      validate(this: Joi.ExtensionBoundSchema, params: FileExistsArgs, value: string, state: any, options: any): any {
         if (!params.q.includes(value)) {
           return this.createError('string.fileExists', { v: value, q: params.q }, state, options)
         }
@@ -136,7 +137,7 @@ export const validateYaml = async () => {
         const content = yamlLoad(textContent)
         const result = Joi.validate(content, await schemaFn(), { abortEarly: false})
         if (result.error) {
-          const customErrors = {}
+          const customErrors : { [id: string]: string[] } = {} 
           result.error.details.forEach(detail => {
             if (detail.path.length > 0) {
               const index = detail.path[0]
@@ -145,7 +146,7 @@ export const validateYaml = async () => {
               }
 
               let message = detail.message
-              if (detail.type === 'array.unique') {
+              if (detail.type === 'array.unique' && detail.context) {
                 // by default it doesn't say what field is not unique
                 message = `"${detail.context.path}" is not unique`
               }
