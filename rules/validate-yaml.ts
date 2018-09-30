@@ -136,40 +136,43 @@ export const validateYaml = async () => {
         return
       }
       const textContent = await danger.github.utils.fileContents(filePath)
+      let content: any
       try {
-        const content = yamlLoad(textContent)
-        const result = Joi.validate(content, await schemaFn(), { abortEarly: false})
-        if (result.error) {
-          const customErrors : { [id: string]: string[] } = {} 
-          result.error.details.forEach(detail => {
-            if (detail.path.length > 0) {
-              const index = detail.path[0]
-
-              let message = detail.message
-              if (detail.type === 'array.unique' && detail.context) {
-                // by default it doesn't say what field is not unique
-                message = `"${detail.context.path}" is not unique`
-              }
-              utils.addErrorMsg(index, message, customErrors)
-            } else {
-              utils.addErrorMsg('root', detail.message, customErrors)
-            }
-          })
-
-          const errors = Object.entries(customErrors).map(([index, errors]: [string, string[]])=> {
-            
-            if (index === 'root') {
-              return errors.map(msg => ` - ${msg}`).join('\n')
-            } else {
-              const errorsString = errors.map(msg => `  - ${msg}`).join('\n')
-              return `- \`\`\`json\n${JSON.stringify(content[index], null, 2).split('\n').map(line => `  ${line}`).join('\n')}\n  \`\`\`\n  **Errors**:\n${errorsString}`
-            }
-          })
-
-          warn(`## ${filePath} didn't pass validation:\n\n${errors.join('\n---\n')}`)
-        }
+        content = yamlLoad(textContent)
       } catch (e) {
         warn(`## ${filePath} is not valid YAML file:\n\n\`\`\`${e.message}\n\`\`\``)
+        return
+      }
+
+      const result = Joi.validate(content, await schemaFn(), { abortEarly: false})
+      if (result.error) {
+        const customErrors : { [id: string]: string[] } = {} 
+        result.error.details.forEach(detail => {
+          if (detail.path.length > 0) {
+            const index = detail.path[0]
+
+            let message = detail.message
+            if (detail.type === 'array.unique' && detail.context) {
+              // by default it doesn't say what field is not unique
+              message = `"${detail.context.path}" is not unique`
+            }
+            utils.addErrorMsg(index, message, customErrors)
+          } else {
+            utils.addErrorMsg('root', detail.message, customErrors)
+          }
+        })
+
+        const errors = Object.entries(customErrors).map(([index, errors]: [string, string[]])=> {
+          
+          if (index === 'root') {
+            return errors.map(msg => ` - ${msg}`).join('\n')
+          } else {
+            const errorsString = errors.map(msg => `  - ${msg}`).join('\n')
+            return `- \`\`\`json\n${JSON.stringify(content[index], null, 2).split('\n').map(line => `  ${line}`).join('\n')}\n  \`\`\`\n  **Errors**:\n${errorsString}`
+          }
+        })
+
+        warn(`## ${filePath} didn't pass validation:\n\n${errors.join('\n---\n')}`)
       }
     })
   )
