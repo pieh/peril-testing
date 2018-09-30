@@ -21,7 +21,7 @@ const getTestSchema = () => {
         },
         validate(params, value, state, options) {
           if (!params.q.includes(path.extname(value))) {
-            return this.createError('string.ext', { v: value, q: params.q }, state, options)
+            return this.createError('string.supportedExtension', { v: value, q: params.q }, state, options)
           }
           
           return value
