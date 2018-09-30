@@ -35,6 +35,9 @@ export const validateYaml = async () => {
   } catch (e) {
     fail(`${filePath} is not valid:\n${e.message}`)
   }
+
+  const test = await danger.github.api.repos.getContent({repo: 'peril-testing', owner: 'pieh', path: 'rules/'})
+  console.log(test)
 };
 
 export default async () => {
