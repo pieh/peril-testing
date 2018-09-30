@@ -73,7 +73,7 @@ const getSitesSchema = () => {
       gatsby_version: Joi.string(),
       plugins: Joi.string()
     })
-  )
+  ).unique('title').unique('url')
 }
 
 const getCreatorsSchema = async () => {
@@ -91,7 +91,7 @@ const getCreatorsSchema = async () => {
       hiring: Joi.boolean(),
       image: customJoi.string().supportedExtension(supportedImageExts).fileExists(await getExistingFiles('docs/community/images', 'images')).required()
     })
-  )
+  ).unique('name')
 }
 
 const getAuthorsSchema = async () => {
@@ -102,7 +102,7 @@ const getAuthorsSchema = async () => {
       avatar: customJoi.string().supportedExtension(supportedImageExts).fileExists(await getExistingFiles('docs/blog/avatars', 'avatars')).required(),
       twitter: Joi.string(),
     })
-  )
+  ).unique('id')
 }
 
 const fileSchemas = {
