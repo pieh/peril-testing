@@ -32,7 +32,7 @@ const getCreatorsSchema = () => {
       description: Joi.string(),
       location: Joi.string(),
       github: Joi.string().allow(null),
-    }).unknown()
+    })
   )
 }
 
