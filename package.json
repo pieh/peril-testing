@@ -1,6 +1,6 @@
 {
   "name": "peril-testing",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "main": "index.js",
   "repository": "git@github.com:pieh/peril-testing.git",
   "author": "Michal Piechowiak <misiek.piechowiak@gmail.com>",
