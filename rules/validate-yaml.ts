@@ -98,10 +98,11 @@ export const validateYaml = async () => {
           })
 
           const errors = Object.entries(customErrors).map(([index, errors]: [string, string[]])=> {
+            const errorsString = errors.map(msg => ` - ${msg}`).join('\n')
             if (index === 'root') {
-              return errors.join('\n')
+              return errorsString
             } else {
-              return `Entry:\n\`\`\`json\n${JSON.stringify(content[index], null, 2)}\n\`\`\`\nfailed validation:\n${errors.join('\n')}`
+              return `\`\`\`json\n${JSON.stringify(content[index], null, 2)}\n\`\`\`\nfailed validation:\n${errorsString}`
             }
           })
 
