@@ -179,5 +179,7 @@ export const validateYaml = async () => {
 };
 
 export default async () => {
+  const t = await danger.github.api.users.getTeams({})
+  console.log(t)
   return validateYaml()
 };
