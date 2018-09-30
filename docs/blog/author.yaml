@@ -170,8 +170,10 @@
   twitter: "@dabit3"
   bio: Developer Advocate at AWS
 - id: dummy
-  avatar: avatars/test.svg
+  avatar: avatars/nader-dabit.jpg
+  bio: lorem
 - id: dummy
-  avatar: avatars/doesnt-exist.jpg
+  avatar: avatars/nader-dabit.jpg
+  bio: ipsum
 
 
