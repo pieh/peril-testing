@@ -34,7 +34,7 @@ const getTestSchema = () => {
     Joi.object().keys({
       name: Joi.string().required(),
       description: Joi.string(),
-      image: Joi.string().supportedExtension(['.txt']),
+      image: customJoi.string().supportedExtension(['.txt']),
     })
   )
 }
