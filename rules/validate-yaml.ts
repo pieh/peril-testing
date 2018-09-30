@@ -3,7 +3,7 @@ import { load as yamlLoad } from 'js-yaml'
 import * as Joi from 'joi'
 import * as path from 'path'
 
-const supportedExts = ['.jpg']
+const supportedImageExts = ['.jpg', '.jpeg']
 
 interface SuppertedExtensionArgs {
   q: string[]
@@ -88,54 +88,12 @@ const getCreatorsSchema = async () => {
       for_hire: Joi.boolean(),
       portfolio: Joi.boolean(),
       hiring: Joi.boolean(),
-      image: customJoi.string().supportedExtension(supportedExts).fileExists(await getExistingFiles('docs/community/images', 'images'))
-    })
-  )
-}
-
-const getTestSchema = async () => {
-  const [owner, repo] = danger.github.pr.head.repo.full_name.split('/')
-  const imagesDirReponse = await danger.github.api.repos.getContent({repo, owner, path: 'data/images/'})
-  const images = imagesDirReponse.data.map(({ name }) => `images/${name}`)
-
-  interface SuppertedExtensionArgs {
-    q: string[]
-  }
-
-  const customJoi = Joi.extend((joi: any) => ({
-    base: joi.string(),
-    name: 'string',
-    language: {
-      supportedExtension: 'need to use supported extension {{q}}'
-    },
-    rules: [
-      {
-        name: 'supportedExtension',
-        params: {
-          q: joi.array().items(joi.string())
-        },
-        validate(params: SuppertedExtensionArgs, value, state, options): any {
-          if (!params.q.includes(path.extname(value))) {
-            return this.createError('string.supportedExtension', { v: value, q: params.q }, state, options)
-          }
-          
-          return value
-        }
-      },
-    ]
-  }))
-
-  return customJoi.array().items(
-    Joi.object().keys({
-      name: Joi.string().required(),
-      description: Joi.string(),
-      image: customJoi.string().valid(images).supportedExtension(supportedExts),
+      image: customJoi.string().supportedExtension(supportedImageExts).fileExists(await getExistingFiles('docs/community/images', 'images'))
     })
   )
 }
 
 const fileSchemas = {
-  "data/test.yaml": getTestSchema,
   "docs/sites.yml": getSitesSchema,
   "docs/community/creators.yml": getCreatorsSchema,
 }
