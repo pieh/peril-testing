@@ -100,7 +100,7 @@ const getAuthorsSchema = async () => {
       id: Joi.string().required(),
       bio: Joi.string().required(),
       avatar: customJoi.string().supportedExtension(supportedImageExts).fileExists(await getExistingFiles('docs/blog/avatars', 'avatars')).required(),
-      twitter: Joi.string().required(),
+      twitter: Joi.string(),
     })
   )
 }
