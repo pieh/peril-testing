@@ -101,7 +101,7 @@ export const validateYaml = async () => {
             if (index === 'root') {
               return errors.join('\n')
             } else {
-              return `Entry:\n\`\`\`json\n{JSON.stringify(content[index], null, 2)}\n\`\`\`\nfailed validation:\n${errors.join('\n')}`
+              return `Entry:\n\`\`\`json\n${JSON.stringify(content[index], null, 2)}\n\`\`\`\nfailed validation:\n${errors.join('\n')}`
             }
           })
 
