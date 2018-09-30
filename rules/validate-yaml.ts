@@ -119,6 +119,16 @@ const fileSchemas = {
   "docs/starters.yml": getStartersSchema,
 }
 
+export const utils = {
+  addErrorMsg: (index: string, message: string, customErrors: { [id: string]: string[] }) => {
+    console.log('addErrorMsg called')
+    if (!customErrors[index]) {
+      customErrors[index] = []
+    }
+    customErrors[index].push(message)
+  }
+}
+
 export const validateYaml = async () => {
   return Promise.all(
     Object.entries(fileSchemas).map(async ([filePath, schemaFn]) => {
@@ -134,21 +144,15 @@ export const validateYaml = async () => {
           result.error.details.forEach(detail => {
             if (detail.path.length > 0) {
               const index = detail.path[0]
-              if (!customErrors[index]) {
-                customErrors[index] = []
-              }
 
               let message = detail.message
               if (detail.type === 'array.unique' && detail.context) {
                 // by default it doesn't say what field is not unique
                 message = `"${detail.context.path}" is not unique`
               }
-
-              customErrors[index].push(message)
+              utils.addErrorMsg(index, message, customErrors)
             } else {
-              customErrors['root'] = [
-                detail.message
-              ]
+              utils.addErrorMsg('root', detail.message, customErrors)
             }
           })
 
@@ -165,7 +169,6 @@ export const validateYaml = async () => {
           fail(`## ${filePath} didn't pass validation:\n\n${errors.join('\n---\n')}`)
         }
       } catch (e) {
-        console.log('e', e)
         fail(`## ${filePath} is not valid YAML file:\n\n\`\`\`${e.message}\n\`\`\``)
       }
     })
