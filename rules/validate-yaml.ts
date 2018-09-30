@@ -4,6 +4,7 @@ import * as Joi from 'joi'
 import * as path from 'path'
 
 const supportedImageExts = ['.jpg', '.jpeg']
+const uriOptions = { scheme: [`https`, `http`] }
 
 interface SuppertedExtensionArgs {
   q: string[]
@@ -62,13 +63,13 @@ const getSitesSchema = () => {
   return Joi.array().items(
     Joi.object().keys({
       title: Joi.string().required(),
-      url: Joi.string().required(),
-      main_url: Joi.string().required(),
-      source_url: Joi.string(),
+      url: Joi.string().uri(uriOptions).required(),
+      main_url: Joi.string().uri(uriOptions).required(),
+      source_url: Joi.string().uri(uriOptions),
       description: Joi.string(),
       categories: Joi.array().items(Joi.string()),
       built_by: Joi.string(),
-      built_by_url: Joi.string(),
+      built_by_url: Joi.string().uri(uriOptions),
       featured: Joi.boolean(),
       date_added: Joi.date(),
       gatsby_version: Joi.string(),
@@ -85,8 +86,8 @@ const getCreatorsSchema = async () => {
       description: Joi.string(),
       location: Joi.string(),
       // need to explicitely allow `null` to not fail on github: null fields
-      github: Joi.string().allow(null),
-      website: Joi.string(),
+      github: Joi.string().uri(uriOptions).allow(null),
+      website: Joi.string().uri(uriOptions),
       for_hire: Joi.boolean(),
       portfolio: Joi.boolean(),
       hiring: Joi.boolean(),
@@ -101,7 +102,7 @@ const getAuthorsSchema = async () => {
       id: Joi.string().required(),
       bio: Joi.string().required(),
       avatar: customJoi.string().supportedExtension(supportedImageExts).fileExists(await getExistingFiles('docs/blog/avatars', 'avatars')).required(),
-      twitter: Joi.string(),
+      twitter: Joi.string().regex(/^@/),
     })
   ).unique('id')
 }
@@ -109,8 +110,8 @@ const getAuthorsSchema = async () => {
 const getStartersSchema = () => {
   return Joi.array().items(
     Joi.object().keys({
-      url: Joi.string().required(),
-      repo: Joi.string().required(),
+      url: Joi.string().uri(uriOptions).required(),
+      repo: Joi.string().uri(uriOptions).required(),
       description: Joi.string(),
       tags: Joi.array().items(Joi.string()),
       features: Joi.array().items(Joi.string()),
