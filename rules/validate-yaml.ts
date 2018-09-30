@@ -6,26 +6,26 @@ const filePath = "data/test.yaml"
 const supportedExts = ['.txt']
 
 export const validateYaml = async () => {
-  console.log('validating')
+  console.log('validating2')
 
- 
-  if (!(danger.git.modified_files.includes(filePath))) {
+   if (!(danger.git.modified_files.includes(filePath))) {
     console.log(`no ${filePath} in changed files`)
     return
   }
-
+  console.log('a')
   const textContent = await danger.github.utils.fileContents(filePath)
   try {
+    console.log('b')
     const content = yamlLoad(textContent)
-
+    console.log('c')
     if (!Array.isArray(content)) {
       fail(`${filePath}: content need to be array`)
       return
     }
-
+    console.log('d')
     console.log('repo',  danger.github.pr.head.repo)
 
-    const imagesDirReponse = await danger.github.api.repos.getContent({repo: 'peril-testing', owner: 'pieh', path: 'data/images/', ref: danger.github.pr.head.ref})
+    const imagesDirReponse = await danger.github.api.repos.getContent({repo: 'peril-testing', owner: 'pieh', path: 'data/images/'})
     const images = imagesDirReponse.data.map(({name}) => `images/${name}`)
     console.log(images)
 
@@ -49,9 +49,10 @@ export const validateYaml = async () => {
         fail(`${filePath}: item #${index+1} 'image' property need to be string`)
       } else if (!images.includes(image)) {
         fail(`${filePath}: item #${index+1} 'image' ${image} doesn't point to existing file`)
-      } else if (!supportedExts.includes(path.extname(image))) {
-        fail(`${filePath}: item #${index+1} 'image' ${image} use unsporrted file format - use one of following: ${supportedExts.join(', ')}`)
-      }
+      } 
+      // else if (!supportedExts.includes(path.extname(image))) {
+      //   fail(`${filePath}: item #${index+1} 'image' ${image} use unsporrted file format - use one of following: ${supportedExts.join(', ')}`)
+      // }
 
     })
   } catch (e) {
