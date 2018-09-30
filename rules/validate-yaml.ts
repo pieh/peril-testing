@@ -7,12 +7,34 @@ import * as path from 'path'
 const filePath = "data/test.yaml"
 const supportedExts = ['.txt']
 
+
+
 const getTestSchema = () => {
-  return Joi.array().items(
+  const customJoi = Joi.extend(joi => ({
+    base: joi.string(),
+    name: 'string',
+    rules: [
+      {
+        name: 'supportedExtension',
+        params: {
+          q: joi.array().items(joi.string())
+        },
+        validate: (params, value, state, options) => {
+          if (!params.q.includes(path.extname(value))) {
+            return this.createError('string.ext', { v: value, q: params.q }, state, options)
+          }
+          
+          return value
+        }
+      }
+    ]
+  }))
+
+  return customJoi.array().items(
     Joi.object().keys({
       name: Joi.string().required(),
       description: Joi.string(),
-      image: Joi.string(),
+      image: Joi.string().supportedExtension(['.txt']),
     })
   )
 }
