@@ -10,3 +10,4 @@
   image: images/this-doesnt-exist.txt
 # missing name, bad image format
 - image: images/c.svg
+  name: name
