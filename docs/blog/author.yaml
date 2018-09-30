@@ -169,5 +169,7 @@
   avatar: avatars/nader-dabit.jpg
   twitter: "@dabit3"
   bio: Developer Advocate at AWS
-- id: pieh
+- id: dummy
   avatar: avatars/test.svg
+- id: dummy
+  avatar: avatars/doesnt-exist.jpg
