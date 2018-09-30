@@ -32,6 +32,10 @@ const getCreatorsSchema = () => {
       description: Joi.string(),
       location: Joi.string(),
       github: Joi.string().allow(null),
+      website: Joi.string(),
+      for_hire: Joi.boolean(),
+      portfolio: Joi.boolean(),
+      hiring: Joi.boolean(),
     })
   )
 }
