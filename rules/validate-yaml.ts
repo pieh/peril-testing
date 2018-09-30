@@ -89,7 +89,18 @@ const getCreatorsSchema = async () => {
       for_hire: Joi.boolean(),
       portfolio: Joi.boolean(),
       hiring: Joi.boolean(),
-      image: customJoi.string().supportedExtension(supportedImageExts).fileExists(await getExistingFiles('docs/community/images', 'images'))
+      image: customJoi.string().supportedExtension(supportedImageExts).fileExists(await getExistingFiles('docs/community/images', 'images')).required()
+    })
+  )
+}
+
+const getAuthorsSchema = async () => {
+  return Joi.array().items(
+    Joi.object().keys({
+      id: Joi.string().required(),
+      bio: Joi.string().required(),
+      avatar: customJoi.string().supportedExtension(supportedImageExts).fileExists(await getExistingFiles('docs/blog/avatars', 'avatars')).required(),
+      twitter: Joi.string().required(),
     })
   )
 }
@@ -97,6 +108,7 @@ const getCreatorsSchema = async () => {
 const fileSchemas = {
   "docs/sites.yml": getSitesSchema,
   "docs/community/creators.yml": getCreatorsSchema,
+  "docs/blog/author.yaml": getAuthorsSchema,
 }
 
 export const validateYaml = async () => {
