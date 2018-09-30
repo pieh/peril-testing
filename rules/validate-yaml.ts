@@ -1,11 +1,20 @@
 import { danger, message, fail } from 'danger';
 import { load as yamlLoad } from 'js-yaml'
 import * as Joi from 'joi'
-import YamlTestSchema from './file-schemas/yaml-test'
+// import YamlTestSchema from './file-schemas/yaml-test'
 import * as path from 'path'
 
 const filePath = "data/test.yaml"
 const supportedExts = ['.txt']
+
+const getTestSchema = () => {
+  return Joi.array().items(
+    Joi.object().keys({
+      name: Joi.string().required(),
+      description: Joi.string(),
+    })
+  )
+}
 
 export const validateYaml = async () => {
   console.log('validating2')
@@ -20,7 +29,7 @@ export const validateYaml = async () => {
     // console.log('b')
     const content = yamlLoad(textContent)
 
-    const result = Joi.validate(content, YamlTestSchema)
+    const result = Joi.validate(content, getTestSchema())
     if (result.error) {
       fail(`${filePath} didn't pass validation:\n${result.error}`)
     }
