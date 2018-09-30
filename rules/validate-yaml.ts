@@ -3,17 +3,29 @@ import { load as yamlLoad } from 'js-yaml'
 import * as Joi from 'joi'
 import * as path from 'path'
 
-const supportedExts = ['.txt']
+const supportedExts = ['.jpg']
 
 interface SuppertedExtensionArgs {
   q: string[]
+}
+
+interface FileExistsArgs {
+  q: string[]
+}
+
+const getExistingFiles = async (path, base) => {
+  const [owner, repo] = danger.github.pr.head.repo.full_name.split('/')
+  const imagesDirReponse = await danger.github.api.repos.getContent({repo, owner, path})
+  const files = imagesDirReponse.data.map(({ name }) => `${base}/${name}`)
+  return files
 }
 
 const customJoi = Joi.extend((joi: any) => ({
   base: joi.string(),
   name: 'string',
   language: {
-    supportedExtension: 'need to use supported extension {{q}}'
+    supportedExtension: 'need to use supported extension {{q}}',
+    fileExists: 'need to point to existing file'
   },
   rules: [
     {
@@ -29,6 +41,19 @@ const customJoi = Joi.extend((joi: any) => ({
         return value
       }
     },
+    {
+      name: 'fileExists',
+      params: {
+        q: joi.array().items(joi.string())
+      },
+      validate(params: FileExistsArgs, value, state, options): Promise<any> {
+        if (!params.q.includes(value)) {
+          return this.createError('string.fileExists', { v: value, q: params.q }, state, options)
+        }
+
+        return value
+      }
+    }
   ]
 }))
 
@@ -52,10 +77,6 @@ const getSitesSchema = () => {
 }
 
 const getCreatorsSchema = async () => {
-  const [owner, repo] = danger.github.pr.head.repo.full_name.split('/')
-  const imagesDirReponse = await danger.github.api.repos.getContent({repo, owner, path: 'docs/community/images/'})
-  const images = imagesDirReponse.data.map(({ name }) => `images/${name}`)
-
   return Joi.array().items(
     Joi.object().keys({
       name: Joi.string().required(),
@@ -67,7 +88,7 @@ const getCreatorsSchema = async () => {
       for_hire: Joi.boolean(),
       portfolio: Joi.boolean(),
       hiring: Joi.boolean(),
-      image: customJoi.string().supportedExtension(supportedExts).valid(images)
+      image: customJoi.string().supportedExtension(supportedExts).fileExists(getExistingFiles('docs/community/images', 'images'))
     })
   )
 }
