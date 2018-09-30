@@ -67,7 +67,7 @@ const getCreatorsSchema = async () => {
       for_hire: Joi.boolean(),
       portfolio: Joi.boolean(),
       hiring: Joi.boolean(),
-      image: customJoi.string().valid(images).supportedExtension(supportedExts)
+      image: customJoi.string().supportedExtension(supportedExts).valid(images)
     })
   )
 }
