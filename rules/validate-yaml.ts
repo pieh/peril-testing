@@ -5,6 +5,7 @@ import * as path from 'path'
 
 const supportedImageExts = ['.jpg', '.jpeg']
 const uriOptions = { scheme: [`https`, `http`] }
+const githubRepoRegex: RegExp = new RegExp(`^https?:\/\/github.com\/[^/]+/[^/]+$`)
 
 interface SuppertedExtensionArgs {
   q: string[]
@@ -111,7 +112,7 @@ const getStartersSchema = () => {
   return Joi.array().items(
     Joi.object().keys({
       url: Joi.string().uri(uriOptions).required(),
-      repo: Joi.string().uri(uriOptions).required(),
+      repo: Joi.string().uri(uriOptions).regex(githubRepoRegex).required(),
       description: Joi.string(),
       tags: Joi.array().items(Joi.string()).required(),
       features: Joi.array().items(Joi.string()),
