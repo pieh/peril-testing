@@ -1,4 +1,4 @@
-import { danger, fail } from 'danger';
+import { danger, warn } from 'danger';
 import { load as yamlLoad } from 'js-yaml'
 import * as Joi from 'joi'
 import * as path from 'path'
@@ -166,10 +166,10 @@ export const validateYaml = async () => {
             }
           })
 
-          fail(`## ${filePath} didn't pass validation:\n\n${errors.join('\n---\n')}`)
+          warn(`## ${filePath} didn't pass validation:\n\n${errors.join('\n---\n')}`)
         }
       } catch (e) {
-        fail(`## ${filePath} is not valid YAML file:\n\n\`\`\`${e.message}\n\`\`\``)
+        warn(`## ${filePath} is not valid YAML file:\n\n\`\`\`${e.message}\n\`\`\``)
       }
     })
   )
