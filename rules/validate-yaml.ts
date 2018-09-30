@@ -19,7 +19,7 @@ const getTestSchema = () => {
         params: {
           q: joi.array().items(joi.string())
         },
-        validate: (params, value, state, options) => {
+        validate(params, value, state, options) {
           if (!params.q.includes(path.extname(value))) {
             return this.createError('string.ext', { v: value, q: params.q }, state, options)
           }
