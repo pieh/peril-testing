@@ -69,7 +69,7 @@ const getSitesSchema = () => {
       built_by: Joi.string(),
       built_by_url: Joi.string(),
       featured: Joi.boolean(),
-      date_added: Joi.date().iso(),
+      date_added: Joi.date(),
       gatsby_version: Joi.string(),
       plugins: Joi.string()
     })
@@ -113,7 +113,7 @@ const getStartersSchema = () => {
       description: Joi.string(),
       tags: Joi.array().items(Joi.string()),
       features: Joi.array().items(Joi.string()),
-      date: Joi.date().iso()
+      date: Joi.date()
     })
   )
 }
