@@ -121,7 +121,7 @@ const fileSchemas = {
   "docs/sites.yml": getSitesSchema,
   "docs/community/creators.yml": getCreatorsSchema,
   "docs/blog/author.yaml": getAuthorsSchema,
-  "docs/starters.yaml": getStartersSchema,
+  "docs/starters.yml": getStartersSchema,
 }
 
 export const validateYaml = async () => {
