@@ -1,6 +1,12 @@
+# correct
 - name: Lorem
   description: Ipsum
   image: images/a.txt
+# bad description (not string), missing image
 - name: Dolor
   description: 5
+# bad image (not existing path), missing optional description (which is fine)
+- name: Sit
+  image: images/doesnt-exist.txt
+# missing name, bad image format
 - image: images/c.svg
