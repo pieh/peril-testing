@@ -101,11 +101,11 @@ export const validateYaml = async () => {
             if (index === 'root') {
               return errors.join('\n')
             } else {
-              return `Entry:\n${JSON.stringify(content[index], null, 2)}\nfailed validation:\n${errors.join('\n')}`
+              return `Entry:\n$\`\`\`json\n{JSON.stringify(content[index], null, 2)}\n\`\`\`\nfailed validation:\n${errors.join('\n')}`
             }
           })
 
-          fail(`${filePath} didn't pass validation:\n${errors.join('\n\n')}`)
+          fail(`*${filePath}* didn't pass validation:\n\n${errors.join('\n\n')}`)
         }
       } catch (e) {
         fail(`${filePath} is not valid:\n${e.message}`)
