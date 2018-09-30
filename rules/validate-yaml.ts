@@ -1,9 +1,15 @@
 import { danger, message, fail } from 'danger';
 import { load as yamlLoad } from 'js-yaml'
 
+const filePath = "data/test.yaml"
+
 export const validateYaml = async () => {
   console.log('validating')
-  const filePath = "test.yaml"
+
+  const imagesDirReponse = await danger.github.api.repos.getContent({repo: 'peril-testing', owner: 'pieh', path: 'data/images/'})
+  const images = imagesDirReponse.data.map(({name}) => name)
+  console.log(images)
+  
   if (!(danger.git.modified_files.includes(filePath))) {
     console.log(`no ${filePath} in changed files`)
     return
@@ -36,8 +42,7 @@ export const validateYaml = async () => {
     fail(`${filePath} is not valid:\n${e.message}`)
   }
 
-  const test = await danger.github.api.repos.getContent({repo: 'peril-testing', owner: 'pieh', path: 'rules/'})
-  console.log(test)
+  
 };
 
 export default async () => {
