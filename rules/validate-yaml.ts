@@ -107,7 +107,7 @@ export const validateYaml = async () => {
             }
           })
 
-          fail(`## ${filePath} didn't pass validation:\n\n${errors.join('\n\n')}`)
+          fail(`## ${filePath} didn't pass validation:\n\n${errors.join('\n---\n')}`)
         }
       } catch (e) {
         fail(`## ${filePath} is not valid YAML file:\n\n\`\`\`${e.message}\n\`\`\``)
