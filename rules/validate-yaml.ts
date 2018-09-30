@@ -35,23 +35,23 @@ export const validateYaml = async () => {
       const { name, description, image } = item
 
       if (!name) {
-        fail(`${filePath}: item #${index+1} is missing required 'name' property`)
+        fail(`${filePath}: item ${index+1} is missing required 'name' property`)
       } else if (typeof name !== 'string') {
-        fail(`${filePath}: item #${index+1} 'name' property need to be string`)
+        fail(`${filePath}: item ${index+1} 'name' property need to be string`)
       }
 
       if (description && typeof description !== 'string') {
-        fail(`${filePath}: item #${index+1} optional 'description' property need to be string`)
+        fail(`${filePath}: item ${index+1} optional 'description' property need to be string`)
       }
 
       if (!image) {
-        fail(`${filePath}: item #${index+1} is missing required 'image' property`)
+        fail(`${filePath}: item ${index+1} is missing required 'image' property`)
       } else if (typeof image !== 'string') {
-        fail(`${filePath}: item #${index+1} 'image' property need to be string`)
+        fail(`${filePath}: item ${index+1} 'image' property need to be string`)
       } else if (!images.includes(image)) {
-        fail(`${filePath}: item #${index+1} 'image' ${image} doesn't point to existing file`)
+        fail(`${filePath}: item ${index+1} 'image' ${image} doesn't point to existing file`)
       } else if (!supportedExts.includes(path.extname(image))) {
-        fail(`${filePath}: item #${index+1} 'image' ${image} unsporrted file format - use one of following: ${supportedExts.join(', ')}`)
+        fail(`${filePath}: item ${index+1} 'image' ${image} unsporrted file format - use one of following: ${supportedExts.join(', ')}`)
       }
 
     })
