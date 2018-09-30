@@ -9,6 +9,7 @@
   "repos": {
     "pieh/peril-testing" : {
       "pull_request": ["rules/validate-yaml.ts"],
+      "check_suite.requested": ["rules/validate-yaml.ts"],
       "check_run.rerequested": ["rules/validate-yaml.ts"]
     }
   }
