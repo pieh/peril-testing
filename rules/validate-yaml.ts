@@ -138,7 +138,13 @@ export const validateYaml = async () => {
               if (!customErrors[index]) {
                 customErrors[index] = []
               }
-              customErrors[index].push(detail.message)
+
+              let message = detail.message
+              if (detail.type === 'array.unique') {
+                message = `"${detail.context.path}" is not unique`
+              }
+
+              customErrors[index].push(message)
             } else {
               customErrors['root'] = [
                 detail.message
