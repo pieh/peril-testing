@@ -13,6 +13,9 @@ const getTestSchema = () => {
   const customJoi = Joi.extend(joi => ({
     base: joi.string(),
     name: 'string',
+    language: {
+      supportedExtension: 'need to use supported extension {{q.join(", ")}}'
+    },
     rules: [
       {
         name: 'supportedExtension',
