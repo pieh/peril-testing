@@ -1,11 +1,11 @@
 {
   "name": "peril-testing",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "main": "index.js",
   "repository": "git@github.com:pieh/peril-testing.git",
   "author": "Michal Piechowiak <misiek.piechowiak@gmail.com>",
   "license": "MIT",
-  "dependencies": {
+  "devDependencies": {
     "@types/joi": "^13.6.0",
     "@types/js-yaml": "^3.11.2",
     "danger": "^4.0.2",
