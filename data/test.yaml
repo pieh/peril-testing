@@ -4,7 +4,7 @@
   image: images/a.txt
 # bad description (not string), missing image
 - name: Dolor
-  description: 8
+  description: 9
 # bad image (not existing path), missing optional description (which is fine)
 - name: Sit
   image: images/this-doesnt-exist.txt
