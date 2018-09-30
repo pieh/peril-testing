@@ -105,10 +105,23 @@ const getAuthorsSchema = async () => {
   ).unique('id')
 }
 
+const getStartersSchema = () => {
+  return Joi.array().items(
+    Joi.object().keys({
+      url: Joi.string().required(),
+      repo: Joi.string().required(),
+      description: Joi.string(),
+      tags: Joi.array().items(Joi.string()),
+      features: Joi.array().items(Joi.string()),
+    })
+  )
+}
+
 const fileSchemas = {
   "docs/sites.yml": getSitesSchema,
   "docs/community/creators.yml": getCreatorsSchema,
   "docs/blog/author.yaml": getAuthorsSchema,
+  "docs/starters.yaml": getStartersSchema,
 }
 
 export const validateYaml = async () => {
