@@ -5,6 +5,33 @@ import * as path from 'path'
 
 const supportedExts = ['.txt']
 
+interface SuppertedExtensionArgs {
+  q: string[]
+}
+
+const customJoi = Joi.extend((joi: any) => ({
+  base: joi.string(),
+  name: 'string',
+  language: {
+    supportedExtension: 'need to use supported extension {{q}}'
+  },
+  rules: [
+    {
+      name: 'supportedExtension',
+      params: {
+        q: joi.array().items(joi.string())
+      },
+      validate(params: SuppertedExtensionArgs, value, state, options): any {
+        if (!params.q.includes(path.extname(value))) {
+          return this.createError('string.supportedExtension', { v: value, q: params.q }, state, options)
+        }
+        
+        return value
+      }
+    },
+  ]
+}))
+
 const getSitesSchema = () => {
   return Joi.array().items(
     Joi.object().keys({
@@ -24,7 +51,11 @@ const getSitesSchema = () => {
   )
 }
 
-const getCreatorsSchema = () => {
+const getCreatorsSchema = async () => {
+  const [owner, repo] = danger.github.pr.head.repo.full_name.split('/')
+  const imagesDirReponse = await danger.github.api.repos.getContent({repo, owner, path: 'docs/community/images/'})
+  const images = imagesDirReponse.data.map(({ name }) => `images/${name}`)
+
   return Joi.array().items(
     Joi.object().keys({
       name: Joi.string().required(),
@@ -36,6 +67,7 @@ const getCreatorsSchema = () => {
       for_hire: Joi.boolean(),
       portfolio: Joi.boolean(),
       hiring: Joi.boolean(),
+      image: customJoi.string().valid(images).supportedExtension(supportedExts)
     })
   )
 }
