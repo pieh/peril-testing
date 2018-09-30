@@ -1,5 +1,6 @@
 - name: Lorem
   description: Ipsum
-  image: images/a.txt
+  image: images/d.txt
 - name: Dolor
-  description: 11
+  description: d
+  image: images/c.svg
