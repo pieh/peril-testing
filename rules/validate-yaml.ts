@@ -104,10 +104,9 @@ const getStartersSchema = () => {
     Joi.object().keys({
       url: Joi.string().uri(uriOptions).required(),
       repo: Joi.string().uri(uriOptions).regex(githubRepoRegex).required(),
-      description: Joi.string(),
+      description: Joi.string().required(),
       tags: Joi.array().items(Joi.string()).required(),
-      features: Joi.array().items(Joi.string()),
-      date: Joi.date()
+      features: Joi.array().items(Joi.string()).required()
     })
   ).unique('url').unique('repo')
 }
