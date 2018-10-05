@@ -3,7 +3,7 @@
   "settings": {
     "ignored_repos": [],
     "env_vars": [],
-    "modules": ["joi"]
+    "modules": ["joi", "js-yaml"]
   },
   "rules": {},
   "repos": {
