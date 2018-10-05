@@ -28,6 +28,15 @@
     - Offline support
     - Web App Manifest
     - SEO
+- url: https://gatsby-tailwind-emotion-starter.netlify.com/
+  repo: https://github.com/muhajirframe/gatsby-tailwind-emotion-starter
+  description: A Gatsby Starter with Tailwind CSS + Emotion JS
+  tags:
+    - Styling:Tailwind
+  features:
+    - Eslint Airbnb without semicolon and without .jsx extension
+    - Offline support
+    - Web App Manifest
 - url: https://dschau.github.io/gatsby-blog-starter-kit/
   repo: https://github.com/dschau/gatsby-blog-starter-kit
   description: n/a
@@ -129,7 +138,7 @@
   repo: https://github.com/gatsbyjs/gatsby-starter-blog
   description: official blog
   tags:
-    - official
+    - Official
     - Blog
 - url: https://gatsby-starter-bloomer.netlify.com/
   repo: https://github.com/Cethy/gatsby-starter-bloomer
@@ -252,13 +261,14 @@
   tags:
     - Official
 - url: http://gatsby-dimension.surge.sh/
-  repo: https://github.com/ChangoMan/gatsby-starter-dimension
-  description: n/a
+  repo: https://github.com/codebushi/gatsby-starter-dimension
+  description: Single page starter based on the Dimension site template
   tags:
     - Portfolio
+    - HTML5UP
     - Styling:SCSS
   features:
-    - Based off of the Dimension site template. Designed by HTML5 UP
+    - Designed by HTML5 UP
     - Simple one page site that’s perfect for personal portfolios
     - Fully Responsive
     - Styling with SCSS
@@ -295,15 +305,16 @@
     - Eslint & Prettier. Uses Airbnb JavaScript Style Guide
     - Authentication via Moltin (Login and Register)
 - url: http://gatsby-forty.surge.sh/
-  repo: https://github.com/ChangoMan/gatsby-starter-forty
-  description: n/a
+  repo: https://github.com/codebushi/gatsby-starter-forty
+  description: Multi-page starter based on the Forty site template
   tags:
     - Styling:SCSS
     - HTML5UP
   features:
-    - Based off of the Forty site template. Designed by HTML5 UP
+    - Designed by HTML5 UP
     - Colorful homepage, and also includes a Landing Page and Generic Page components.
     - Many elements are available, including buttons, forms, tables, and pagination.
+    - Custom grid made with CSS Grid
     - Styling with SCSS
 - url: https://themes.gatsbythemes.com/gatsby-starter/
   repo: https://github.com/saschajullmann/gatsby-starter-gatsbythemes
@@ -328,18 +339,28 @@
     - Font styles taken from Tachyons.
 - url: https://gcn.netlify.com/
   repo: https://github.com/ryanwiemer/gatsby-starter-gcn
-  description: n/a
+  description: A starter template to build amazing static websites with Gatsby, Contentful and Netlify
   tags:
     - Contentful
+    - Blog
     - Netlify Form
     - Styling:CSS-in-JS
   features:
-    - Inspired by gatsby-contentful-starter
     - Contentful integration with ready to go placeholder content
     - Netlify integration including a pre-built contact form
     - Minimal responsive design - made to customize or tear apart
+    - Pagination logic
     - Styled components
-    - SEO friendly
+    - SEO Friendly Component
+    - JSON-LD Schema
+    - OpenGraph sharing support
+    - Sitemap Generation
+    - Google Analytics
+    - Progressive Web app
+    - Offline Support
+    - RSS Feed
+    - Gatsby Standard module for linting Javascript with StandardJS
+    - Stylelint support for Styled Components to lint the CSS in JS
 - url: https://alampros.github.io/gatsby-starter-grommet/
   repo: https://github.com/alampros/gatsby-starter-grommet
   description: n/a
@@ -480,11 +501,12 @@
     - Webpack BundleAnalyzerPlugin
 - url: http://gatsby-photon.surge.sh/
   repo: https://github.com/codebushi/gatsby-starter-photon
-  description: n/a
+  description: Single page starter based on the Photon site template
   tags:
     - HTML5UP
+    - Styling:SCSS
   features:
-    - Based off of the Photon site template. Designed by HTML5 UP
+    - Designed by HTML5 UP
     - Single Page, Responsive Site
     - Custom grid made with CSS Grid
     - Styling with SCSS
@@ -600,24 +622,25 @@
     - Eslint rules based on Prettier and Airbnb
 - url: http://gatsby-stellar.surge.sh/
   repo: https://github.com/codebushi/gatsby-starter-stellar
-  description: n/a
+  description: Single page starter based on the Stellar site template
   tags:
     - HTML5UP
+    - Styling:SCSS
   features:
-    - Based off of the Stellar site template. Designed by HTML5 UP
+    - Designed by HTML5 UP
     - Scroll friendly, responsive site. Can be used as a single or multi-page site.
     - Sticky Navigation when scrolling.
     - Scroll spy and smooth scrolling to different sections of the page.
     - Styling with SCSS
 - url: http://gatsby-strata.surge.sh/
-  repo: https://github.com/ChangoMan/gatsby-starter-strata
-  description: n/a
+  repo: https://github.com/codebushi/gatsby-starter-strata
+  description: Single page starter based on the Strata site template
   tags:
     - Portfolio
     - HTML5UP
     - Styling:SCSS
   features:
-    - Based off of the Strata site template. Designed by HTML5 UP
+    - Designed by HTML5 UP
     - Super Simple, single page portfolio site
     - Lightbox style React photo gallery
     - Fully Responsive
@@ -701,9 +724,9 @@
     - Jest/Enzyme testing
     - Storybook
     - Markdown linting
-- url: https://gatsby-wordpress-starter.netlify.com/
-  repo: https://github.com/ericwindmill/gatsby-starter-wordpress
-  description: n/a
+- url: https://gatsby-starter-wordpress.netlify.com/
+  repo: https://github.com/GatsbyCentral/gatsby-starter-wordpress
+  description: Gatsby starter using WordPress as the content source.
   tags:
     - Styling:CSS-in-JS
     - Wordpress
@@ -741,8 +764,8 @@
   repo: https://github.com/Ganevru/gatsby-starter-blog-grommet
   description: GatsbyJS v2 starter for creating a blog. Based on Grommet v2 UI.
   tags:
-    - blog
-    - markdown
+    - Blog
+    - Markdown
     - Styling:Grommet
   features:
     - Grommet v2 UI
@@ -751,5 +774,17 @@
     - Responsive Design, optimized for Mobile devices
     - styled-components
     - JavaScript Standard Style
+- url: https://happy-pare-dff451.netlify.com/
+  repo: https://github.com/fhavrlent/gatsby-contentful-typescript-starter
+  description: Contentful and TypeScript starter based on default starter.
+  tags:
+    - Contentful
+    - TypeScript
+    - Styling:CSS-in-JS
+  features:
+    - Based on default starter
+    - TypeScript
+    - CSS in JS (Emotion)
+    - Contentful
     
     
