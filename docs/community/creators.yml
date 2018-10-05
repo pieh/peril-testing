@@ -8,7 +8,7 @@
   location: "Potsdam, Germany"
   website: "https://fabianschultz.com/"
   github: "https://github.com/fabe"
-  image: images/fabian-schultz-doesnt-exist.jpg
+  image: images/fabian-schultz.jpg
   for_hire: true
   portfolio: true
 - name: Kris Hedstrom
@@ -26,7 +26,7 @@
   location: "New York, US"
   website: "https://k-create.com/"
   github: "https://github.com/kristofferh"
-  image: images/kris-hedstrom.svg
+  image: images/kris-hedstrom.jpg
   for_hire: true
   portfolio: true
 - name: Mahipat Jadav
@@ -196,6 +196,5 @@
   image: images/steven-natera.jpg
   for_hire: true
   portfolio: true
-
-
-
+  
+  
