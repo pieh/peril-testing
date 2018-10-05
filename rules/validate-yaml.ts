@@ -59,15 +59,12 @@ const getSitesSchema = () => {
       main_url: Joi.string().uri(uriOptions).required(),
       source_url: Joi.string().uri(uriOptions),
       description: Joi.string(),
-      categories: Joi.array().items(Joi.string()),
+      categories: Joi.array().items(Joi.string()).required(),
       built_by: Joi.string(),
       built_by_url: Joi.string().uri(uriOptions),
       featured: Joi.boolean(),
-      date_added: Joi.date(),
-      gatsby_version: Joi.string(),
-      plugins: Joi.string()
     })
-  ).unique('title').unique('url')
+  ).unique('title').unique('url').unique('main_url')
 }
 
 const getCreatorsSchema = async () => {
@@ -120,7 +117,6 @@ const fileSchemas = {
 
 export const utils = {
   addErrorMsg: (index: string, message: string, customErrors: { [id: string]: string[] }) => {
-    console.log('addErrorMsg called')
     if (!customErrors[index]) {
       customErrors[index] = []
     }
