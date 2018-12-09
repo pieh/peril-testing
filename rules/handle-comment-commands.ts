@@ -140,27 +140,30 @@ const configureFormatter = async (prInfo: PRInfo) => {
     const report = cli.executeOnText(content, task.filename);
     const result = report.results[0];
 
+    const errorDetails = result.messages &&
+    result.messages.length > 0 &&
+    result.messages.map((eslintMessage: EslintMessage) => {
+      return {
+        msg: eslintMessage.message,
+        line: eslintMessage.line,
+        endLine: eslintMessage.endLine
+      };
+    })
+
     if (result.output && content !== result.output) {
       // create details
 
       return {
         status: `needUpdate`,
         output: result.output,
-        errorDetails:
-          result.messages &&
-          result.messages.length > 0 &&
-          result.messages.map((eslintMessage: EslintMessage) => {
-            return {
-              msg: eslintMessage.message,
-              line: eslintMessage.line,
-              endLine: eslintMessage.endLine
-            };
-          })
+        errorDetails,
+          
       };
     }
 
     return {
-      status: `skip`
+      status: `skip`,
+      errorDetails
     };
   };
   const prettierFormat = async (
@@ -312,8 +315,8 @@ const createCommit = async (
 };
 
 const fixF = str => {
-  return str.replace(/\u001b\[[0-9]+m/g, '')
-}
+  return str.replace(/\u001b\[[0-9]+m/g, "");
+};
 
 export const shouldFormat = async () => {
   try {
