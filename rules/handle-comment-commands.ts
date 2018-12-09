@@ -186,9 +186,9 @@ const configureFormatter = async (prInfo: PRInfo) => {
       );
 
       const formatResult = await formatter(task, content);
-      if (formatResult.status === `needUpdate`) {
-        (formatResult.filename = task.filename), (formatResult.sha = sha);
-      }
+
+      formatResult.filename = task.filename;
+      formatResult.sha = sha;
 
       return formatResult;
     }
@@ -332,7 +332,7 @@ export const shouldFormat = async () => {
     // Format files
     const formatResults = await Promise.all(fileTasks.map(formatter));
 
-    console.log('formatResults', formatResults)
+    console.log("formatResults", formatResults);
 
     // show message about files that can't be fully autofixed
     const filesThatCantBeFullyFixes = formatResults.filter(
@@ -349,8 +349,8 @@ export const shouldFormat = async () => {
         )
         .join(`\n\n`);
 
-      console.log('should display message:\n')
-      console.log(msg)
+      console.log("should display message:\n");
+      console.log(msg);
       message(msg);
     }
 
