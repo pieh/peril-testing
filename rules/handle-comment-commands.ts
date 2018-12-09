@@ -48,6 +48,8 @@ const getPRInfo = async (number: Number): Promise<PRInfo> => {
     ...getBaseOwnerAndRepo(),
     number,
   })
+
+  console.log('pr data', prData)
   
   const filesData: getFilesReponse = await danger.github.api.pullRequests.getFiles({
     ...getBaseOwnerAndRepo(),
@@ -168,6 +170,10 @@ const extToFormatter: { [index:string] : string } = {
   ".md": `prettier`,
 }
 
+const createCommit = async (changedFiles, PRBranchInfo: BranchInfo) => {
+
+}
+
 export const shouldFormat = async () => {
   if (!danger.github.issue.pull_request) {
     console.log(`NOT PR`)
@@ -214,25 +220,25 @@ export const shouldFormat = async () => {
     // return await task.formatter(task.filename)
   }))
 
-  await Promise.all(formatResults.filter(fileResult => fileResult.status === `needUpdate`).map(async fileResult => {
-    try {
-    const args = {
-      owner: PRInfo.head.owner,
-      repo: PRInfo.head.repo,
-      path: fileResult.filename,
-      message: `chore: format ${fileResult.filename}`,
-      content: fileResult.output,
-      sha: fileResult.sha,
-      branch: PRInfo.head.ref,
-    }
+  // await Promise.all(formatResults.filter(fileResult => fileResult.status === `needUpdate`).map(async fileResult => {
+  //   try {
+  //   const args = {
+  //     owner: PRInfo.head.owner,
+  //     repo: PRInfo.head.repo,
+  //     path: fileResult.filename,
+  //     message: `chore: format ${fileResult.filename}`,
+  //     content: fileResult.output,
+  //     sha: fileResult.sha,
+  //     branch: PRInfo.head.ref,
+  //   }
 
-    console.log('updating file (dry-run)', args)
+  //   console.log('updating file (dry-run)', args)
 
-    await danger.github.api.repos.updateFile(args)
-  } catch(e) {
-    console.log(`didn't update`, e)
-  }
-  }))
+  //   await danger.github.api.repos.updateFile(args)
+  // } catch(e) {
+  //   console.log(`didn't update`, e)
+  // }
+  // }))
 }
 
 // return {
