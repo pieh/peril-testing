@@ -21,6 +21,14 @@ const getPRInfo = async (number: Number) => {
     number,
   })
 
+  const filesData = await danger.github.api.pullRequests.getFiles({
+    owner: mainOwner,
+    repo,
+    number,
+  })
+
+  console.log('files', filesData)
+
   return {
     base: getBranchInformation(prData.data.base),
     head: getBranchInformation(prData.data.head)
