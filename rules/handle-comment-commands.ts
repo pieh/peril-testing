@@ -214,13 +214,26 @@ export const shouldFormat = async () => {
     // return await task.formatter(task.filename)
   }))
 
-  // await Promise.all(formatResults.filter(fileResult => fileResult.status === `needUpdate`).map(async fileResult => {
-  //   await danger.github.api.repos.updateFile({
-
-  //   })
-  // }))
+  await Promise.all(formatResults.filter(fileResult => fileResult.status === `needUpdate`).map(async fileResult => {
+    await danger.github.api.repos.updateFile({
+      owner: PRInfo.head.owner,
+      repo: PRInfo.head.repo,
+      path: fileResult.filename,
+      message: `chore: format ${task.filename}`,
+      content: fileResult.output,
+      sha: fileResult.sha,
+      branch: PRInfo.head.ref,
+    })
+  }))
 }
 
+// return {
+//   status: `needUpdate`,
+//   filename: task.filename,
+//   sha,
+//   output: result.output,
+//   extraInformation: result.messages
+// }
 
 export default async () => {
   return shouldFormat()
