@@ -1,4 +1,4 @@
-import { danger, warn } from "danger";
+import { danger, message } from "danger";
 import * as path from "path";
 import { CLIEngine } from "eslint";
 import * as Prettier from "prettier";
@@ -24,6 +24,22 @@ type PRInfo = {
   head: BranchInfo;
   files: string[];
 };
+
+type FileTask = {
+  filename: string,
+  formatter: string,
+}
+
+type IntermediateFormatResult = {
+  status: string,
+  output?: string,
+  errorDetails?: string,
+}
+
+interface FormatResult extends IntermediateFormatResult {
+  filename: string,
+  sha?: string,
+}
 
 const getBranchInfo = (responseFragment: any) => {
   const [owner, repo] = responseFragment.repo.full_name.split("/");
@@ -105,11 +121,12 @@ const configureFormatter = async (prInfo: PRInfo) => {
     fix: true
   });
 
-  const eslintFormat = (task, content: string) => {
+  const eslintFormat = (task: FileTask, content: string): IntermediateFormatResult => {
     const report = cli.executeOnText(content, task.filename);
     const result = report.results[0];
 
     if (result.output && content !== result.output) {
+      // create details
       return {
         status: `needUpdate`,
         output: result.output
@@ -121,31 +138,40 @@ const configureFormatter = async (prInfo: PRInfo) => {
       status: `ok`
     };
   };
-  const prettierFormat = async (task, content: string) => {
+  const prettierFormat = async (task: FileTask, content: string): Promise<IntermediateFormatResult> => {
     const finfo = await Prettier.getFileInfo(task.filename);
-    const formattedText = await Prettier.format(content, {
-      ...prettierConfig,
-      parser: finfo.inferredParser
-    });
+    try {
+      const formattedText = await Prettier.format(content, {
+        ...prettierConfig,
+        parser: finfo.inferredParser
+      });
 
-    if (formattedText !== content) {
+      if (formattedText !== content) {
+        return {
+          status: `needUpdate`,
+          output: formattedText
+        };
+      }
+
       return {
-        status: `needUpdate`,
-        output: formattedText
+        status: `ok`
+      };
+    } catch (e) {
+      e.message;
+
+      return {
+        status: `formatError`,
+        errorDetails: e.toString()
       };
     }
-
-    return {
-      status: `ok`
-    };
   };
 
-  const formatters = {
+  const formatters: {[index: string]: Function} = {
     eslint: eslintFormat,
     prettier: prettierFormat
   };
 
-  return async task => {
+  return async (task:FileTask): Promise<FormatResult>  => {
     const formatter = formatters[task.formatter];
     if (formatter) {
       const { content, sha } = await grabFileContent(
@@ -162,36 +188,9 @@ const configureFormatter = async (prInfo: PRInfo) => {
     }
 
     return {
-      status: `ok`
+      status: `ok`,
+      filename: task.filename
     };
-
-    // if (task.formatter === `eslint`) {
-    //   const { content, sha } = await grabFileContent(
-    //     prInfo.head,
-    //     task.filename
-    //   );
-    //   const report = cli.executeOnText(content, task.filename);
-
-    //   const result = report.results[0];
-    //   if (result.output && content !== result.output) {
-    //     console.log(`${task.filename}: NEED UPDATE`);
-    //     return {
-    //       status: `needUpdate`,
-    //       filename: task.filename,
-    //       sha,
-    //       output: result.output,
-    //       extraInformation: result.messages
-    //     };
-    //   } else {
-    //     console.log(`${task.filename}: OK`);
-    //   }
-    // } else {
-    //   console.log("no formatter");
-    // }
-
-    // return {
-    //   status: `ok`
-    // };
   };
 };
 
@@ -201,10 +200,10 @@ const extToFormatter: { [index: string]: string } = {
   ".yml": `prettier`,
   ".yaml": `prettier`,
   ".css": `prettier`,
-  ".scss": `prettier`,
+  ".scss": `prettier`
 };
 
-const createCommit = async (changedFiles, PRBranchInfo: BranchInfo) => {
+const createCommit = async (changedFiles: FormatResult[], PRBranchInfo: BranchInfo) => {
   console.log("creating commit", {
     changedFiles,
     PRBranchInfo
@@ -304,7 +303,7 @@ export const shouldFormat = async () => {
 
     // Assign formatters (based on file extension) and filter out files that
     // aren't linted/formatted
-    const fileTasks = PRInfo.files
+    const fileTasks: FileTask[] = PRInfo.files
       .map(filename => {
         return {
           filename,
@@ -324,11 +323,25 @@ export const shouldFormat = async () => {
     // Format files
     const formatResults = await Promise.all(fileTasks.map(formatter));
 
-    console.log("creating commit");
-    await createCommit(
-      formatResults.filter(fileResult => fileResult.status === `needUpdate`),
-      PRInfo.head
+    // show message about files that can't be fully autofixed
+    const filesThatCantBeFullyFixes = formatResults.filter(
+      fileResult => fileResult.errorDetails
+    )
+    if (filesThatCantBeFullyFixes.length > 0) {
+      const msg = filesThatCantBeFullyFixes.map(fileResult => `### ${fileResult.filename}:\n` + 
+      `\`\`\`\n` + fileResult.errorDetails + `\n\`\`\``
+      ).join(`\n\n`)
+      
+      message(msg)
+    }
+
+    const filesThatCanBeUpdated = formatResults.filter(
+      fileResult => fileResult.status === `needUpdate`
     );
+    if (filesThatCanBeUpdated.length > 0) {
+      console.log("creating commit");
+      await createCommit(filesThatCanBeUpdated, PRInfo.head);
+    }
   } catch (e) {
     console.log("err", e);
   }
