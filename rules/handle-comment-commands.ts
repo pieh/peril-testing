@@ -237,7 +237,7 @@ export const shouldFormat = async () => {
   }))
 
   console.log('creating commit')
-  await createCommit(formatResults, PRInfo.base)
+  await createCommit(formatResults, PRInfo.head)
 
   // await Promise.all(formatResults.filter(fileResult => fileResult.status === `needUpdate`).map(async fileResult => {
   //   try {
