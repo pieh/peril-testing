@@ -115,12 +115,15 @@ const grabFileContent = async (branch: BranchInfo, path: string) => {
   const buffer = Buffer.from(response.data.content, response.data.encoding)
   const content = buffer.toString()
 
-  return content
+  return {
+    content
+    sha: response.data.sha,
+  }
 } 
 
 const configureFormatter = async (prInfo: PRInfo) => {
-  const eslintConfig = JSON.parse(await grabFileContent(prInfo.base, `.eslintrc.json`))
-  const prettierConfig = JSON.parse(await grabFileContent(prInfo.base, `.prettierrc`))
+  const eslintConfig = JSON.parse((await grabFileContent(prInfo.base, `.eslintrc.json`)).content)
+  const prettierConfig = JSON.parse((await grabFileContent(prInfo.base, `.prettierrc`)).content)
 
   // need to let eslint know about prettier settings
   eslintConfig.rules[`prettier/prettier`] = [`error`, prettierConfig, {
@@ -134,12 +137,21 @@ const configureFormatter = async (prInfo: PRInfo) => {
 
   return async task => {
     if (task.formatter === `eslint`) {
-      const content = await grabFileContent(prInfo.head, task.filename)
+      const { content, sha } = await grabFileContent(prInfo.head, task.filename)
       const report = cli.executeOnText(content, task.filename)
 
       const result = report.results[0]
       if (result.output && content !== result.output) {
         console.log(`${task.filename}: NEED UPDATE`)
+
+        return {
+          status: `needUpdate`,
+          filename: task.filename,
+          sha,
+          output: result.output,
+          extraInformation: result.messages
+        }
+
       } else {
         console.log(`${task.filename}: OK`)
       }
@@ -153,11 +165,14 @@ const configureFormatter = async (prInfo: PRInfo) => {
       //   console.log(result)
       // }
 
-      return
+      
     }
 
 
     console.log('no formatter')
+    return {
+      status: `ok`
+    }
   }
 }
 
@@ -211,6 +226,12 @@ export const shouldFormat = async () => {
     // const formatterFunction = 
     // return await task.formatter(task.filename)
   }))
+
+  // await Promise.all(formatResults.filter(fileResult => fileResult.status === `needUpdate`).map(async fileResult => {
+  //   await danger.github.api.repos.updateFile({
+
+  //   })
+  // }))
 }
 
 
