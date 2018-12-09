@@ -112,9 +112,11 @@ const configureFormatters = async (base : BranchInfo) => {
       path: `.eslintrc.json`
     }
     console.log(args)
-    const eslintC = await danger.github.api.repos.getContent(args)
+    const response = await danger.github.api.repos.getContent(args)
+    const buffer = Buffer.from(response.data.content, response.data.encoding)
+    const content = buffer.toString()
 
-    console.log(eslintC)
+    console.log(content)
   } catch( e) {
     console.log(e)
   }
