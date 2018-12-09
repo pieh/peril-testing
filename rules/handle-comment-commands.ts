@@ -185,8 +185,10 @@ export const shouldFormat = async () => {
   }
 
   // create formatters
+  console.log('creating formatter')
   const formatter = await configureFormatter(PRInfo)
 
+  console.log('formatting')
   // Format files
   const formatResults = await Promise.all(fileTasks.map(async task => {
     await formatter(task)
