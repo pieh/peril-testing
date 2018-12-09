@@ -45,9 +45,6 @@ export const shouldFormat = async () => {
 
   const PRInfo = await getPRInfo(danger.github.issue.number)
 
-  
-  
-
   console.log(PRInfo)
 }
 
