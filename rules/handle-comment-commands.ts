@@ -134,7 +134,7 @@ export const shouldFormat = async () => {
   const PRInfo = await getPRInfo(danger.github.issue.number)
   console.log(PRInfo)
 
-  if (PRInfo.base.repo !== `master`) {
+  if (PRInfo.base.ref !== `master`) {
     console.log('PR against non-master branch')
     return
   }
