@@ -116,7 +116,7 @@ const grabFileContent = async (branch: BranchInfo, path: string) => {
   const content = buffer.toString()
 
   return {
-    content
+    content,
     sha: response.data.sha,
   }
 } 
