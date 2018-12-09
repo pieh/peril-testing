@@ -134,17 +134,14 @@ const configureFormatter = async (prInfo: PRInfo) => {
 
   return async task => {
     if (task.formatter === `eslint`) {
-      try {
       const content = await grabFileContent(prInfo.head, task.filename)
       const report = cli.executeOnText(content, task.filename)
 
-      console.log('run formatting', task.filename)
-
-      // report.results[0]
-      console.log(report.results[0])
-      
-      } catch( e) {
-        console.log(':(', e)
+      const result = report.results[0]
+      if (content !== result.output) {
+        console.log(`${task.filename}: NEED UPDATE`)
+      } else {
+        console.log(`${task.filename}: OK`)
       }
       return
     }
