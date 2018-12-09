@@ -26,19 +26,19 @@ type PRInfo = {
 };
 
 type FileTask = {
-  filename: string,
-  formatter: string,
-}
+  filename: string;
+  formatter: string;
+};
 
 type IntermediateFormatResult = {
-  status: string,
-  output?: string,
-  errorDetails?: string,
-}
+  status: string;
+  output?: string;
+  errorDetails?: string;
+};
 
 interface FormatResult extends IntermediateFormatResult {
-  filename: string,
-  sha?: string,
+  filename: string;
+  sha?: string;
 }
 
 const getBranchInfo = (responseFragment: any) => {
@@ -121,7 +121,10 @@ const configureFormatter = async (prInfo: PRInfo) => {
     fix: true
   });
 
-  const eslintFormat = (task: FileTask, content: string): IntermediateFormatResult => {
+  const eslintFormat = (
+    task: FileTask,
+    content: string
+  ): IntermediateFormatResult => {
     const report = cli.executeOnText(content, task.filename);
     const result = report.results[0];
 
@@ -138,7 +141,10 @@ const configureFormatter = async (prInfo: PRInfo) => {
       status: `ok`
     };
   };
-  const prettierFormat = async (task: FileTask, content: string): Promise<IntermediateFormatResult> => {
+  const prettierFormat = async (
+    task: FileTask,
+    content: string
+  ): Promise<IntermediateFormatResult> => {
     const finfo = await Prettier.getFileInfo(task.filename);
     try {
       const formattedText = await Prettier.format(content, {
@@ -166,12 +172,12 @@ const configureFormatter = async (prInfo: PRInfo) => {
     }
   };
 
-  const formatters: {[index: string]: Function} = {
+  const formatters: { [index: string]: Function } = {
     eslint: eslintFormat,
     prettier: prettierFormat
   };
 
-  return async (task:FileTask): Promise<FormatResult>  => {
+  return async (task: FileTask): Promise<FormatResult> => {
     const formatter = formatters[task.formatter];
     if (formatter) {
       const { content, sha } = await grabFileContent(
@@ -203,7 +209,10 @@ const extToFormatter: { [index: string]: string } = {
   ".scss": `prettier`
 };
 
-const createCommit = async (changedFiles: FormatResult[], PRBranchInfo: BranchInfo) => {
+const createCommit = async (
+  changedFiles: FormatResult[],
+  PRBranchInfo: BranchInfo
+) => {
   console.log("creating commit", {
     changedFiles,
     PRBranchInfo
@@ -326,13 +335,19 @@ export const shouldFormat = async () => {
     // show message about files that can't be fully autofixed
     const filesThatCantBeFullyFixes = formatResults.filter(
       fileResult => fileResult.errorDetails
-    )
+    );
     if (filesThatCantBeFullyFixes.length > 0) {
-      const msg = filesThatCantBeFullyFixes.map(fileResult => `### ${fileResult.filename}:\n` + 
-      `\`\`\`\n` + fileResult.errorDetails + `\n\`\`\``
-      ).join(`\n\n`)
-      
-      message(msg)
+      const msg = filesThatCantBeFullyFixes
+        .map(
+          fileResult =>
+            `### ${fileResult.filename}:\n` +
+            `\`\`\`\n` +
+            fileResult.errorDetails +
+            `\n\`\`\``
+        )
+        .join(`\n\n`);
+
+      message(msg);
     }
 
     const filesThatCanBeUpdated = formatResults.filter(
