@@ -311,6 +311,10 @@ const createCommit = async (
   }
 };
 
+const fixF = str => {
+  return str.replace(/\u001b\[[0-9]+m/g, '')
+}
+
 export const shouldFormat = async () => {
   try {
     if (!danger.github.issue.pull_request) {
@@ -386,7 +390,7 @@ export const shouldFormat = async () => {
           return (
             `### ${fileResult.filename}:\n` +
             `\`\`\`\n` +
-            errorsInFile +
+            fixF(errorsInFile) +
             `\n\`\`\``
           );
         })
