@@ -99,7 +99,7 @@ export const shouldFormat = async () => {
   }).filter(tasks => tasks.formatter)
 
   // Format files
-  const formatResults = await Promise.all(tasks.map(async task => {
+  const formatResults = await Promise.all(fileTasks.map(async task => {
     return await task.formatter(task.filename)
   }))
 
