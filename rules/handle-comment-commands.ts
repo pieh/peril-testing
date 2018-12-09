@@ -280,6 +280,7 @@ const createCommit = async (changedFiles, PRBranchInfo: BranchInfo) => {
 };
 
 export const shouldFormat = async () => {
+  try {
   if (!danger.github.issue.pull_request) {
     console.log(`NOT PR`);
     return;
@@ -322,7 +323,9 @@ export const shouldFormat = async () => {
   const formatResults = await Promise.all(fileTasks.map(formatter));
 
   console.log('formatResults', formatResults)
-
+  } catch( e) {
+    console.log('err', e)
+  }
   return
   console.log("creating commit");
   await createCommit(
