@@ -2,6 +2,7 @@
 import { danger, warn } from 'danger';
 import * as path from 'path'
 import { CLIEngine } from 'eslint'
+import { ServerResponse } from 'http';
 
 type FileData = {
   filename: string,
@@ -129,13 +130,64 @@ const extToFormatter: { [index:string] : string } = {
 }
 
 const createCommit = async (changedFiles, PRBranchInfo: BranchInfo) => {
-  const tree = await danger.github.api.gitdata.getTree({
+  console.log('creating commit', {
+    changedFiles,
+    PRBranchInfo
+  })
+  return
+
+
+
+  try {
+  const tree = (await danger.github.api.gitdata.getTree({
     owner: PRBranchInfo.owner,
     repo: PRBranchInfo.repo,
     tree_sha: PRBranchInfo.sha,
-  })
+  })).data
+
+  // create blobs
+  // const changedFilesWithBlobs = Promise.all(changedFiles.map(async changedFile => {
+  //   const reponse = await danger.github.api.gitdata.createBlob({
+  //     owner: PRBranchInfo.owner,
+  //     repo: PRBranchInfo.repo,
+  //     content: changedFile.output,
+  //     encoding: 'utf-8',
+  //   })
+  //   return {
+  //     ...changedFile,
+  //     blob: reponse.data
+  //   }
+  // }))
+
+  const newTree = (await danger.github.api.gitdata.createTree({
+    owner: PRBranchInfo.owner,
+    repo: PRBranchInfo.repo,
+    tree: changedFiles.map(fileData => {
+      return {
+        path: fileData.filename,
+        mode: '100644',
+        type: 'blob',
+        content: changedFile.output,
+      }
+    }),
+    base_tree: tree.sha,
+  })).data
+
+  const commit = (await danger.github.api.gitdata.createCommit({
+    owner: PRBranchInfo.owner,
+    repo: PRBranchInfo.repo,
+    message: 'chore: format',
+    tree: newTree.sha,
+    parents: [
+      PRBranchInfo.sha
+    ]
+  })).data
+
 
   console.log('tree', tree)
+} catch (e) {
+  console.log(':(', e)
+}
 }
 
 export const shouldFormat = async () => {
