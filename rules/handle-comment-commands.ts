@@ -16,6 +16,7 @@ type BranchInfo = {
   repo: string,
   owner: string,
   ref: string,
+  sha: string,
 }
 
 type PRInfo = {
@@ -29,7 +30,8 @@ const getBranchInfo = (responseFragment: any) => {
   return {
     repo,
     owner,
-    ref: responseFragment.ref
+    ref: responseFragment.ref,
+    sha: responseFragment.sha,
   }
 }
 
@@ -61,50 +63,6 @@ const getPRInfo = async (number: Number): Promise<PRInfo> => {
     head: getBranchInfo(prData.data.head),
     files: filesData.data.filter(fileData => fileData.status !== `removed`).map(fileData => fileData.filename)
   }
-}
-
-// let elintConfig = null
-// let prettierConfig = null
-
-// const configs = new Map()
-
-// const getConfig = async (configFileName:string) => {
-//   if (configs.has(configFileName)) {
-//     return configs.get(configFileName)
-//   }
-
-//   danger.github.api.repos.getContent()
-// }
-
-// const eslintFormat = async (filename: string) => {
-//   console.log('eslint formatting', filename)
-
-//   const { ...esconfig } = JSON.parse(
-//     fs.readFileSync(`./wat-eslintrc`, { encoding: `utf-8` })
-//   )
-//   const prettierconfig = JSON.parse(
-//     fs.readFileSync(`./wat-prettierrc`, { encoding: `utf-8` })
-//   )
-
-//   esconfig.rules[`prettier/prettier`] = [`error`, prettierconfig]
-
-//   var cli = new CLIEngine({
-//     baseConfig: esconfig,
-//     fix: true,
-//   })
-
-//   const fileName = `foo.js`
-//   const text = fs.readFileSync(fileName, { encoding: `utf-8` })
-//   const report = cli.executeOnText(text, `fileName`)
-//   console.log(report.results[0])
-// }
-
-const prettierFormat = (filename: string) => {
-  console.log('prettier formatting', filename)
-}
-
-const getEslintFormatter = PRInfo => {
-
 }
 
 const grabFileContent = async (branch: BranchInfo, path: string) => {
@@ -171,7 +129,13 @@ const extToFormatter: { [index:string] : string } = {
 }
 
 const createCommit = async (changedFiles, PRBranchInfo: BranchInfo) => {
+  const tree = await danger.github.api.gitdata.getTree({
+    owner: PRBranchInfo.owner,
+    repo: PRBranchInfo.repo,
+    tree_sha: PRBranchInfo.sha,
+  })
 
+  console.log('tree', tree)
 }
 
 export const shouldFormat = async () => {
@@ -219,6 +183,9 @@ export const shouldFormat = async () => {
     // const formatterFunction = 
     // return await task.formatter(task.filename)
   }))
+
+  console.log('creating commit')
+  await createCommit(formatResults, PRInfo.base)
 
   // await Promise.all(formatResults.filter(fileResult => fileResult.status === `needUpdate`).map(async fileResult => {
   //   try {
