@@ -25,7 +25,7 @@ type PRInfo = {
 }
 
 const getBranchInfo = (responseFragment: any) => {
-  const [repo, owner] = responseFragment.repo.full_name.split('/')
+  const [owner, repo] = responseFragment.repo.full_name.split('/')
   return {
     repo,
     owner,
