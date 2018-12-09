@@ -209,7 +209,7 @@ export const shouldFormat = async () => {
   console.log('formatting')
   // Format files
   const formatResults = await Promise.all(fileTasks.map(async task => {
-    await formatter(task)
+    return await formatter(task)
     // const formatterFunction = 
     // return await task.formatter(task.filename)
   }))
@@ -220,15 +220,15 @@ export const shouldFormat = async () => {
       owner: PRInfo.head.owner,
       repo: PRInfo.head.repo,
       path: fileResult.filename,
-      message: `chore: format ${task.filename}`,
+      message: `chore: format ${fileResult.filename}`,
       content: fileResult.output,
       sha: fileResult.sha,
       branch: PRInfo.head.ref,
     }
 
-    console.log('updating file', args)
+    console.log('updating file (dry-run)', args)
 
-    await danger.github.api.repos.updateFile(args)
+    // await danger.github.api.repos.updateFile(args)
   } catch(e) {
     console.log(`didn't update`, e)
   }
