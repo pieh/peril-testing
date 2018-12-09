@@ -11,6 +11,18 @@ type getFilesReponse = {
   data: FileData[]
 }
 
+type BranchInfo = {
+  repo: string,
+  owner: string,
+  ref: string,
+}
+
+type PRInfo = {
+  base: BranchInfo,
+  head: BranchInfo,
+  files: string[],
+}
+
 const getBranchInfo = (responseFragment: any) => {
   const [repo, owner] = responseFragment.repo.full_name.split('/')
   return {
@@ -28,10 +40,9 @@ const getBaseOwnerAndRepo = () => {
   }
 }
 
-const getPRInfo = async (number: Number) => {
+const getPRInfo = async (number: Number): Promise<PRInfo> => {
   console.log(`grabing branch data for PR #${number}`)
 
-  // const [mainOwner, repo] = danger.github.repository.full_name.split('/')
   const prData = await danger.github.api.pullRequests.get({
     ...getBaseOwnerAndRepo(),
     number,
@@ -49,10 +60,17 @@ const getPRInfo = async (number: Number) => {
   }
 }
 
-const eslintFormat = () => {}
-const prettierFormat = () => {}
+const memoizedConfigs = new Map()
 
-const extToFormatter = {
+const eslintFormat = (filename: string) => {
+  console.log('eslint formatting', filename)
+}
+
+const prettierFormat = (filename: string) => {
+  console.log('prettier formatting', filename)
+}
+
+const extToFormatter: { [index:string] : Function } = {
   ".js": eslintFormat,
   ".md": prettierFormat,
 }
@@ -68,8 +86,22 @@ export const shouldFormat = async () => {
     return
   }
 
+  // Grab branches information and list of files in PR
   const PRInfo = await getPRInfo(danger.github.issue.number)
 
+  // Assign formatters (based on file extension) and filter out files that
+  // aren't linted/formatted
+  const fileTasks = PRInfo.files.map(filename => {
+    return {
+      filename,
+      formatter: extToFormatter[path.extname(filename)]
+    }
+  }).filter(tasks => tasks.formatter)
+
+  // Format files
+  const formatResults = await Promise.all(tasks.map(async task => {
+    return await task.formatter(task.filename)
+  }))
 
 
 
