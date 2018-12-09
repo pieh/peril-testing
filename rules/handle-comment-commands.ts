@@ -33,11 +33,13 @@ type FileTask = {
 type ErrorDetail = {
   msg: string;
   line: Number;
+  endLine: Number;
 };
 
 type EslintMessage = {
   message: string;
   line: Number;
+  endLine: Number;
 };
 
 type IntermediateFormatResult = {
@@ -150,7 +152,8 @@ const configureFormatter = async (prInfo: PRInfo) => {
           result.messages.map((eslintMessage: EslintMessage) => {
             return {
               msg: eslintMessage.message,
-              line: eslintMessage.line
+              line: eslintMessage.line,
+              endLine: eslintMessage.endLine
             };
           })
       };
@@ -184,7 +187,9 @@ const configureFormatter = async (prInfo: PRInfo) => {
     } catch (e) {
       return {
         status: `formatError`,
-        errorDetails: [{ msg: e.toString(), line: e.loc.end }]
+        errorDetails: [
+          { msg: e.toString(), line: e.loc.start.line, endLine: e.loc.end.line }
+        ]
       };
     }
   };
@@ -366,19 +371,25 @@ export const shouldFormat = async () => {
 
     if (filesThatCantBeFullyFixes.length > 0) {
       const msg = filesThatCantBeFullyFixes
-        .map(
-          fileResult => {
-            const errorsInFile = fileResult.errorDetails.map(errorDetail => {
-              return `Line ${errorDetail.line}:\n${errorDetail.msg}`
-            }).join(`\n\n`)
+        .map(fileResult => {
+          const errorsInFile = fileResult.errorDetails
+            .map(errorDetail => {
+              const lineNumber =
+                errorDetail.endLine && errorDetail.endLine !== errorDetail.line
+                  ? `${errorDetail.line} - ${errorDetail.endLine}`
+                  : errorDetail.line;
 
-            return `### ${fileResult.filename}:\n` +
+              return `Line ${lineNumber}:\n${errorDetail.msg}`;
+            })
+            .join(`\n\n`);
+
+          return (
+            `### ${fileResult.filename}:\n` +
             `\`\`\`\n` +
             errorsInFile +
             `\n\`\`\``
-          }
-
-        )
+          );
+        })
         .join(`\n\n`);
 
       const createCommentArgs = {
@@ -386,9 +397,9 @@ export const shouldFormat = async () => {
         repo: PRInfo.base.repo,
         number: danger.github.issue.number,
         body: msg
-      }
+      };
 
-      console.log('create comment args', createCommentArgs)
+      console.log("create comment args", createCommentArgs);
 
       await danger.github.api.issues.createComment(createCommentArgs);
     }
