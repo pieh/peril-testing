@@ -11,7 +11,7 @@
       "pull_request": ["rules/validate-yaml.ts"]
     },
     "pieh/gatsby": {
-      "issue_comment.created (issue.pull_request != null)": ["pieh/peril-testing@rules/handle-comment-commands.ts"]
+      "issue_comment.created": ["pieh/peril-testing@rules/handle-comment-commands.ts"]
     }
   }
 }
