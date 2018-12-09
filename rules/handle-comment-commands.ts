@@ -105,22 +105,45 @@ const getEslintFormatter = PRInfo => {
 
 }
 
-const configureFormatters = async (base : BranchInfo) => {
-  try {
-    const args  ={
-      ...base,
-      path: `.eslintrc.json`
-    }
-    console.log(args)
-    const response = await danger.github.api.repos.getContent(args)
-    const buffer = Buffer.from(response.data.content, response.data.encoding)
-    const content = buffer.toString()
-
-    console.log(content)
-  } catch( e) {
-    console.log(e)
+const grabFileContent = async (branch: BranchInfo, path: string) => {
+  const args  ={
+    ...branch,
+    path,
   }
+
+  const response = await danger.github.api.repos.getContent(args)
+  const buffer = Buffer.from(response.data.content, response.data.encoding)
+  const content = buffer.toString()
+
+  return content
 } 
+
+const configureFormatter = async (prInfo: PRInfo) => {
+  const eslintConfig = JSON.parse(await grabFileContent(prInfo.base, `.eslintrc.json`))
+  const prettierConfig = JSON.parse(await grabFileContent(prInfo.base, `.prettierrc`))
+
+  // need to let eslint know about prettier settings
+  eslintConfig.rules[`prettier/prettier`] = [`error`, prettierConfig]
+
+  const cli = new CLIEngine({
+    baseConfig: eslintConfig,
+    fix: true,
+  })
+
+  return async task => {
+    if (task.formatter === `eslint`) {
+      const content = await grabFileContent(prInfo.head, task.filename)
+      const report = cli.executeOnText(content, task.filename)
+
+      console.log('run formatting')
+      console.log(report)
+      return
+    }
+
+
+    console.log('no formatter')
+  }
+}
 
 const extToFormatter: { [index:string] : string } = {
   ".js": `eslint`,
@@ -149,21 +172,27 @@ export const shouldFormat = async () => {
 
   // Assign formatters (based on file extension) and filter out files that
   // aren't linted/formatted
-  // const fileTasks = PRInfo.files.map(filename => {
-  //   return {
-  //     filename,
-  //     formatter: extToFormatter[path.extname(filename)]
-  //   }
-  // }).filter(tasks => tasks.formatter)
+  const fileTasks = PRInfo.files.map(filename => {
+    return {
+      filename,
+      formatter: extToFormatter[path.extname(filename)]
+    }
+  }).filter(tasks => tasks.formatter)
 
-  // create formatters (read configuration from base branch)
-  const formatters = await configureFormatters(PRInfo.base)
+  if (fileTasks.length === 0) {
+    console.log('No files to format')
+    return
+  }
+
+  // create formatters
+  const formatter = await configureFormatter(PRInfo)
 
   // Format files
-  // const formatResults = await Promise.all(fileTasks.map(async task => {
-  //   const formatterFunction = 
-  //   return await task.formatter(task.filename)
-  // }))
+  const formatResults = await Promise.all(fileTasks.map(async task => {
+    await formatter(task)
+    // const formatterFunction = 
+    // return await task.formatter(task.filename)
+  }))
 }
 
 
