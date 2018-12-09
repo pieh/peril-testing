@@ -167,7 +167,7 @@ const createCommit = async (changedFiles, PRBranchInfo: BranchInfo) => {
         path: fileData.filename,
         mode: '100644',
         type: 'blob',
-        content: changedFile.output,
+        content: fileData.output,
       }
     }),
     base_tree: tree.sha,
