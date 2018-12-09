@@ -48,7 +48,7 @@ export const shouldFormat = async () => {
   
   
 
-  console.log(prData)
+  console.log(PRInfo)
 }
 
 
