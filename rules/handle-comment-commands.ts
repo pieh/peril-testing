@@ -143,7 +143,6 @@ const configureFormatter = async (prInfo: PRInfo) => {
       const result = report.results[0]
       if (result.output && content !== result.output) {
         console.log(`${task.filename}: NEED UPDATE`)
-
         return {
           status: `needUpdate`,
           filename: task.filename,
@@ -151,25 +150,13 @@ const configureFormatter = async (prInfo: PRInfo) => {
           output: result.output,
           extraInformation: result.messages
         }
-
       } else {
         console.log(`${task.filename}: OK`)
       }
-
-      // if (task.filename === `packages/gatsby/src/utils/cache.js`) {
-      //   console.log('BEFORE:\n---')
-      //   console.log(content)
-      //   console.log('AFTER:\n---')
-      //   console.log(result.output)
-      //   console.log('FULL RES:\n---')
-      //   console.log(result)
-      // }
-
-      
+    } else {
+      console.log('no formatter')
     }
 
-
-    console.log('no formatter')
     return {
       status: `ok`
     }
