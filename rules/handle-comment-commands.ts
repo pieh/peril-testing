@@ -138,20 +138,20 @@ const configureFormatter = async (prInfo: PRInfo) => {
       const report = cli.executeOnText(content, task.filename)
 
       const result = report.results[0]
-      if (content !== result.output) {
+      if (result.output && content !== result.output) {
         console.log(`${task.filename}: NEED UPDATE`)
       } else {
         console.log(`${task.filename}: OK`)
       }
 
-      if (task.filename === `packages/gatsby/src/utils/cache.js`) {
-        console.log('BEFORE:\n---')
-        console.log(content)
-        console.log('AFTER:\n---')
-        console.log(result.output)
-        console.log('FULL RES:\n---')
-        console.log(result)
-      }
+      // if (task.filename === `packages/gatsby/src/utils/cache.js`) {
+      //   console.log('BEFORE:\n---')
+      //   console.log(content)
+      //   console.log('AFTER:\n---')
+      //   console.log(result.output)
+      //   console.log('FULL RES:\n---')
+      //   console.log(result)
+      // }
 
       return
     }
