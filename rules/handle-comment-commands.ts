@@ -215,7 +215,8 @@ export const shouldFormat = async () => {
   }))
 
   await Promise.all(formatResults.filter(fileResult => fileResult.status === `needUpdate`).map(async fileResult => {
-    await danger.github.api.repos.updateFile({
+    try {
+    const args = {
       owner: PRInfo.head.owner,
       repo: PRInfo.head.repo,
       path: fileResult.filename,
@@ -223,7 +224,14 @@ export const shouldFormat = async () => {
       content: fileResult.output,
       sha: fileResult.sha,
       branch: PRInfo.head.ref,
-    })
+    }
+
+    console.log('updating file', args)
+
+    await danger.github.api.repos.updateFile(args)
+  } catch(e) {
+    console.log(`didn't update`, e)
+  }
   }))
 }
 
