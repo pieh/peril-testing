@@ -21,7 +21,7 @@ export const shouldFormat = async () => {
 
   const [owner, repo] = danger.github.repository.full_name.split('/')
 
-  const prData = wait danger.github.api.pullRequests.get({
+  const prData = await danger.github.api.pullRequests.get({
     owner,
     repo,
     number,
