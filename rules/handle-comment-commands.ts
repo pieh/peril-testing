@@ -21,10 +21,6 @@ const getPRInfo = async number => {
     number,
   })
 
-
-
-  const [owner, branch ] = prData.data
-
   return {
     base: getBranchInformation(prData.data.base),
     head: getBranchInformation(prData.data.head)
