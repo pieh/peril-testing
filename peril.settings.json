@@ -9,6 +9,9 @@
   "repos": {
     "pieh/peril-testing" : {
       "pull_request": ["rules/validate-yaml.ts"]
+    },
+    "pieh/gatsby": {
+      "pull_request_review_comment.created": ["pieh/peril-testing@rules/handle-comment-commands.ts"]
     }
   }
 }
