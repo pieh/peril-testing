@@ -228,7 +228,7 @@ export const shouldFormat = async () => {
 
     console.log('updating file (dry-run)', args)
 
-    // await danger.github.api.repos.updateFile(args)
+    await danger.github.api.repos.updateFile(args)
   } catch(e) {
     console.log(`didn't update`, e)
   }
