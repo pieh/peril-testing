@@ -149,6 +149,8 @@ const configureFormatter = async (prInfo: PRInfo) => {
         console.log(content)
         console.log('AFTER:\n---')
         console.log(result.output)
+        console.log('FULL RES:\n---')
+        console.log(result)
       }
 
       return
