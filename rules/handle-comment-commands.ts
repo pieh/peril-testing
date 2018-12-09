@@ -49,7 +49,7 @@ const getPRInfo = async (number: Number): Promise<PRInfo> => {
     number,
   })
 
-  console.log('pr data', prData)
+  console.log('pr data', prData.data.head)
   
   const filesData: getFilesReponse = await danger.github.api.pullRequests.getFiles({
     ...getBaseOwnerAndRepo(),
