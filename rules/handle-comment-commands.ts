@@ -2,7 +2,7 @@
 import { danger, warn } from 'danger';
 import * as path from 'path'
 
-const getBranchInformation = responseFragment => {
+const getBranchInformation = (responseFragment: any) => {
   const [repo, owner] = responseFragment.repo.full_name.split('/')
   return {
     repo,
@@ -11,7 +11,7 @@ const getBranchInformation = responseFragment => {
   }
 }
 
-const getPRInfo = async number => {
+const getPRInfo = async (number: Number) => {
   console.log(`grabing branch data for PR #${number}`)
 
   const [mainOwner, repo] = danger.github.repository.full_name.split('/')
