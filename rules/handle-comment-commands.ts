@@ -1,307 +1,336 @@
-
-import { danger, warn } from 'danger';
-import * as path from 'path'
-import { CLIEngine } from 'eslint'
-import { ServerResponse } from 'http';
+import { danger, warn } from "danger";
+import * as path from "path";
+import { CLIEngine } from "eslint";
+import * as Prettier from "prettier";
 
 type FileData = {
-  filename: string,
-  status: string,
-}
+  filename: string;
+  status: string;
+};
 
 type getFilesReponse = {
-  data: FileData[]
-}
+  data: FileData[];
+};
 
 type BranchInfo = {
-  repo: string,
-  owner: string,
-  ref: string,
-  sha: string,
-}
+  repo: string;
+  owner: string;
+  ref: string;
+  sha: string;
+};
 
 type PRInfo = {
-  base: BranchInfo,
-  head: BranchInfo,
-  files: string[],
-}
+  base: BranchInfo;
+  head: BranchInfo;
+  files: string[];
+};
 
 const getBranchInfo = (responseFragment: any) => {
-  const [owner, repo] = responseFragment.repo.full_name.split('/')
+  const [owner, repo] = responseFragment.repo.full_name.split("/");
   return {
     repo,
     owner,
     ref: responseFragment.ref,
-    sha: responseFragment.sha,
-  }
-}
+    sha: responseFragment.sha
+  };
+};
 
 const getBaseOwnerAndRepo = () => {
-  const [owner, repo] = danger.github.repository.full_name.split('/')
+  const [owner, repo] = danger.github.repository.full_name.split("/");
   return {
     owner,
     repo
-  }
-}
+  };
+};
 
 const getPRInfo = async (number: Number): Promise<PRInfo> => {
-  console.log(`grabing branch data for PR #${number}`)
+  console.log(`grabing branch data for PR #${number}`);
 
   const prData = await danger.github.api.pullRequests.get({
     ...getBaseOwnerAndRepo(),
-    number,
-  })
+    number
+  });
 
-  // console.log('pr data', prData.data.head)
-  
-  const filesData: getFilesReponse = await danger.github.api.pullRequests.getFiles({
-    ...getBaseOwnerAndRepo(),
-    number,
-  })
+  const filesData: getFilesReponse = await danger.github.api.pullRequests.getFiles(
+    {
+      ...getBaseOwnerAndRepo(),
+      number
+    }
+  );
 
   return {
     base: getBranchInfo(prData.data.base),
     head: getBranchInfo(prData.data.head),
-    files: filesData.data.filter(fileData => fileData.status !== `removed`).map(fileData => fileData.filename)
-  }
-}
+    files: filesData.data
+      .filter(fileData => fileData.status !== `removed`)
+      .map(fileData => fileData.filename)
+  };
+};
 
 const grabFileContent = async (branch: BranchInfo, path: string) => {
-  const args  ={
+  const args = {
     ...branch,
-    path,
-  }
+    path
+  };
 
-  const response = await danger.github.api.repos.getContent(args)
-  const buffer = Buffer.from(response.data.content, response.data.encoding)
-  const content = buffer.toString()
+  const response = await danger.github.api.repos.getContent(args);
+  const buffer = Buffer.from(response.data.content, response.data.encoding);
+  const content = buffer.toString();
 
   return {
     content,
-    sha: response.data.sha,
-  }
-} 
+    sha: response.data.sha
+  };
+};
 
 const configureFormatter = async (prInfo: PRInfo) => {
-  const eslintConfig = JSON.parse((await grabFileContent(prInfo.base, `.eslintrc.json`)).content)
-  const prettierConfig = JSON.parse((await grabFileContent(prInfo.base, `.prettierrc`)).content)
+  const eslintConfig = JSON.parse(
+    (await grabFileContent(prInfo.base, `.eslintrc.json`)).content
+  );
+  const prettierConfig = JSON.parse(
+    (await grabFileContent(prInfo.base, `.prettierrc`)).content
+  );
 
   // need to let eslint know about prettier settings
-  eslintConfig.rules[`prettier/prettier`] = [`error`, prettierConfig, {
-    "usePrettierrc": false
-  }]
+  eslintConfig.rules[`prettier/prettier`] = [
+    `error`,
+    prettierConfig,
+    {
+      usePrettierrc: false
+    }
+  ];
 
   const cli = new CLIEngine({
     baseConfig: eslintConfig,
-    fix: true,
-  })
+    fix: true
+  });
 
-  return async task => {
-    if (task.formatter === `eslint`) {
-      const { content, sha } = await grabFileContent(prInfo.head, task.filename)
-      const report = cli.executeOnText(content, task.filename)
+  const eslintFormat = (task, content: string) => {
+    const report = cli.executeOnText(content, task.filename);
+    const result = report.results[0];
 
-      const result = report.results[0]
-      if (result.output && content !== result.output) {
-        console.log(`${task.filename}: NEED UPDATE`)
-        return {
-          status: `needUpdate`,
-          filename: task.filename,
-          sha,
-          output: result.output,
-          extraInformation: result.messages
-        }
-      } else {
-        console.log(`${task.filename}: OK`)
-      }
-    } else {
-      console.log('no formatter')
+    if (result.output && content !== result.output) {
+      return {
+        status: `needUpdate`,
+        output: result.output
+        // extraInformation: result.messages
+      };
     }
 
     return {
       status: `ok`
-    }
-  }
-}
+    };
+  };
+  const prettierFormat = async (task, content: string) => {
+    const finfo = await prettier.getFileInfo(task.filename);
+    const formattedText = await prettier.format(content, {
+      ...prettierconfig,
+      parser: finfo.inferredParser
+    });
 
-const extToFormatter: { [index:string] : string } = {
+    if (formattedText !== content) {
+      return {
+        status: `needUpdate`,
+        output: formattedText
+      };
+    }
+
+    return {
+      status: `ok`
+    };
+  };
+
+  const formatters = {
+    eslint: eslintFormat,
+    prettier: prettierFormat
+  };
+
+  return async task => {
+    const formatter = formatters[task.formatter];
+    if (formatter) {
+      const { content, sha } = await grabFileContent(
+        prInfo.head,
+        task.filename
+      );
+
+      const formatResult = await formatter(task, content);
+      if (formatResult.status === `needUpdate`) {
+        (formatResult.filename = task.filename), (formatResult.sha = sha);
+      }
+
+      return formatResult;
+    }
+
+    return {
+      status: `ok`
+    };
+
+    // if (task.formatter === `eslint`) {
+    //   const { content, sha } = await grabFileContent(
+    //     prInfo.head,
+    //     task.filename
+    //   );
+    //   const report = cli.executeOnText(content, task.filename);
+
+    //   const result = report.results[0];
+    //   if (result.output && content !== result.output) {
+    //     console.log(`${task.filename}: NEED UPDATE`);
+    //     return {
+    //       status: `needUpdate`,
+    //       filename: task.filename,
+    //       sha,
+    //       output: result.output,
+    //       extraInformation: result.messages
+    //     };
+    //   } else {
+    //     console.log(`${task.filename}: OK`);
+    //   }
+    // } else {
+    //   console.log("no formatter");
+    // }
+
+    // return {
+    //   status: `ok`
+    // };
+  };
+};
+
+const extToFormatter: { [index: string]: string } = {
   ".js": `eslint`,
   ".md": `prettier`,
-}
+  ".yml": `prettier`,
+  ".yaml": `prettier`
+};
 
 const createCommit = async (changedFiles, PRBranchInfo: BranchInfo) => {
-  console.log('creating commit', {
+  console.log("creating commit", {
     changedFiles,
     PRBranchInfo
-  })
-  // return
-
-
+  });
 
   try {
-
     const oldTreeArgs = {
       owner: PRBranchInfo.owner,
       repo: PRBranchInfo.repo,
-      tree_sha: PRBranchInfo.sha,
-    }
+      tree_sha: PRBranchInfo.sha
+    };
 
-    console.log('old tree args', oldTreeArgs)
+    console.log("old tree args", oldTreeArgs);
 
-  const tree = (await danger.github.api.gitdata.getTree(oldTreeArgs)).data
+    const tree = (await danger.github.api.gitdata.getTree(oldTreeArgs)).data;
 
+    console.log("old tree data", tree);
 
-  console.log('old tree data', tree)
+    const newTreeArgs = {
+      owner: PRBranchInfo.owner,
+      repo: PRBranchInfo.repo,
+      tree: changedFiles.map(fileData => {
+        return {
+          path: fileData.filename,
+          mode: "100644",
+          type: "blob",
+          content: fileData.output
+        };
+      }),
+      base_tree: tree.sha
+    };
 
-  // create blobs
-  // const changedFilesWithBlobs = Promise.all(changedFiles.map(async changedFile => {
-  //   const reponse = await danger.github.api.gitdata.createBlob({
-  //     owner: PRBranchInfo.owner,
-  //     repo: PRBranchInfo.repo,
-  //     content: changedFile.output,
-  //     encoding: 'utf-8',
-  //   })
-  //   return {
-  //     ...changedFile,
-  //     blob: reponse.data
-  //   }
-  // }))
+    console.log("new tree args", newTreeArgs);
 
-  const newTreeArgs = {
-    owner: PRBranchInfo.owner,
-    repo: PRBranchInfo.repo,
-    tree: changedFiles.map(fileData => {
-      return {
-        path: fileData.filename,
-        mode: '100644',
-        type: 'blob',
-        content: fileData.output,
-      }
-    }),
-    base_tree: tree.sha,
+    const newTree = (await danger.github.api.gitdata.createTree(newTreeArgs))
+      .data;
+
+    console.log("new tree data", newTree);
+
+    const commitArgs = {
+      owner: PRBranchInfo.owner,
+      repo: PRBranchInfo.repo,
+      message: "chore: format",
+      tree: newTree.sha,
+      parents: [PRBranchInfo.sha]
+    };
+
+    console.log("new commit args", commitArgs);
+
+    const commit = (await danger.github.api.gitdata.createCommit(commitArgs))
+      .data;
+
+    console.log("new commit data", commit);
+
+    // update branch to point to new commit
+    const updateRefArgs = {
+      owner: PRBranchInfo.owner,
+      repo: PRBranchInfo.repo,
+      ref: `heads/${PRBranchInfo.ref}`,
+      sha: commit.sha,
+      force: false
+    };
+
+    console.log("update ref args", updateRefArgs);
+
+    const refUpdate = (await danger.github.api.gitdata.updateReference(
+      updateRefArgs
+    )).data;
+
+    console.log("update ref data", refUpdate);
+    // console.log('tree', tree)
+  } catch (e) {
+    console.log(":(", e);
   }
-
-  console.log('new tree args', newTreeArgs)
-
-  const newTree = (await danger.github.api.gitdata.createTree(newTreeArgs)).data
-
-  console.log('new tree data', newTree)
-
-  const commitArgs ={
-    owner: PRBranchInfo.owner,
-    repo: PRBranchInfo.repo,
-    message: 'chore: format',
-    tree: newTree.sha,
-    parents: [
-      PRBranchInfo.sha
-    ]
-  }
-
-  console.log('new commit args', commitArgs)
-
-  const commit = (await danger.github.api.gitdata.createCommit(commitArgs)).data
-
-  console.log('new commit data', commit)
-
-  // update branch to point to new commit
-  const updateRefArgs = {
-    owner: PRBranchInfo.owner,
-    repo: PRBranchInfo.repo,
-    ref: `heads/${PRBranchInfo.ref}`,
-    sha: commit.sha,
-    force: false
-  }
-
-  console.log('update ref args', updateRefArgs)
-
-  const refUpdate = (await danger.github.api.gitdata.updateReference(updateRefArgs)).data
-
-  console.log('update ref data', refUpdate)
-  // console.log('tree', tree)
-} catch (e) {
-  console.log(':(', e)
-}
-}
+};
 
 export const shouldFormat = async () => {
   if (!danger.github.issue.pull_request) {
-    console.log(`NOT PR`)
-    return
+    console.log(`NOT PR`);
+    return;
   }
 
   if (!danger.github.comment.body.includes(`format`)) {
-    console.log(`comment doesn't include "format"`)
-    return
+    console.log(`comment doesn't include "format"`);
+    return;
   }
 
   // Grab branches information and list of files in PR
-  const PRInfo = await getPRInfo(danger.github.issue.number)
-  console.log(PRInfo)
+  const PRInfo = await getPRInfo(danger.github.issue.number);
+  console.log(PRInfo);
 
   if (PRInfo.base.ref !== `master`) {
-    console.log('PR against non-master branch')
-    return
+    console.log("PR against non-master branch");
+    return;
   }
 
   // Assign formatters (based on file extension) and filter out files that
   // aren't linted/formatted
-  const fileTasks = PRInfo.files.map(filename => {
-    return {
-      filename,
-      formatter: extToFormatter[path.extname(filename)]
-    }
-  }).filter(tasks => tasks.formatter)
+  const fileTasks = PRInfo.files
+    .map(filename => {
+      return {
+        filename,
+        formatter: extToFormatter[path.extname(filename)]
+      };
+    })
+    .filter(tasks => tasks.formatter);
 
   if (fileTasks.length === 0) {
-    console.log('No files to format')
-    return
+    console.log("No files to format");
+    return;
   }
 
-  // create formatters
-  console.log('creating formatter')
-  const formatter = await configureFormatter(PRInfo)
+  // Create formatters
+  const formatter = await configureFormatter(PRInfo);
 
-  console.log('formatting')
   // Format files
-  const formatResults = await Promise.all(fileTasks.map(async task => {
-    return await formatter(task)
-    // const formatterFunction = 
-    // return await task.formatter(task.filename)
-  }))
+  const formatResults = await Promise.all(fileTasks.map(formatter));
 
-  
-  console.log('creating commit')
-  await createCommit(formatResults.filter(fileResult => fileResult.status === `needUpdate`), PRInfo.head)
+  console.log('formatResults', formatResults)
 
-  // await Promise.all(formatResults.filter(fileResult => fileResult.status === `needUpdate`).map(async fileResult => {
-  //   try {
-  //   const args = {
-  //     owner: PRInfo.head.owner,
-  //     repo: PRInfo.head.repo,
-  //     path: fileResult.filename,
-  //     message: `chore: format ${fileResult.filename}`,
-  //     content: fileResult.output,
-  //     sha: fileResult.sha,
-  //     branch: PRInfo.head.ref,
-  //   }
-
-  //   console.log('updating file (dry-run)', args)
-
-  //   await danger.github.api.repos.updateFile(args)
-  // } catch(e) {
-  //   console.log(`didn't update`, e)
-  // }
-  // }))
-}
-
-// return {
-//   status: `needUpdate`,
-//   filename: task.filename,
-//   sha,
-//   output: result.output,
-//   extraInformation: result.messages
-// }
+  return
+  console.log("creating commit");
+  await createCommit(
+    formatResults.filter(fileResult => fileResult.status === `needUpdate`),
+    PRInfo.head
+  );
+};
 
 export default async () => {
-  return shouldFormat()
+  return shouldFormat();
 };
