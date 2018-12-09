@@ -1,4 +1,4 @@
-import { danger, message } from "danger";
+import { danger } from "danger";
 import * as path from "path";
 import { CLIEngine } from "eslint";
 import * as Prettier from "prettier";
@@ -30,10 +30,20 @@ type FileTask = {
   formatter: string;
 };
 
+type ErrorDetail = {
+  msg: string;
+  line: Number;
+};
+
+type EslintMessage = {
+  message: string;
+  line: Number;
+};
+
 type IntermediateFormatResult = {
   status: string;
   output?: string;
-  errorDetails?: string;
+  errorDetails?: ErrorDetail[];
 };
 
 interface FormatResult extends IntermediateFormatResult {
@@ -130,10 +140,16 @@ const configureFormatter = async (prInfo: PRInfo) => {
 
     if (result.output && content !== result.output) {
       // create details
+
       return {
         status: `needUpdate`,
-        output: result.output
-        // extraInformation: result.messages
+        output: result.output,
+        errorDetails: result.messages && result.messages.length > 0 && result.messages.map((eslintMessage: EslintMessage) => {
+          return {
+            msg: eslintMessage.message,
+            line: eslintMessage.line
+          };
+        })
       };
     }
 
@@ -165,7 +181,7 @@ const configureFormatter = async (prInfo: PRInfo) => {
     } catch (e) {
       return {
         status: `formatError`,
-        errorDetails: e.toString()
+        errorDetails: [{ msg: e.toString(), line: e.loc.end }]
       };
     }
   };
@@ -332,10 +348,19 @@ export const shouldFormat = async () => {
 
     console.log("formatResults", formatResults);
 
-    // show message about files that can't be fully autofixed
+    const filesThatCanBeUpdated = formatResults.filter(
+      fileResult => fileResult.status === `needUpdate`
+    );
+    if (filesThatCanBeUpdated.length > 0) {
+      console.log("creating commit");
+      await createCommit(filesThatCanBeUpdated, PRInfo.head);
+    }
+
+    // show inline message about files that can't be fully autofixed
     const filesThatCantBeFullyFixes = formatResults.filter(
       fileResult => fileResult.errorDetails
     );
+
     if (filesThatCantBeFullyFixes.length > 0) {
       const msg = filesThatCantBeFullyFixes
         .map(
@@ -349,16 +374,16 @@ export const shouldFormat = async () => {
 
       console.log("should display message:\n");
       console.log(msg);
-      message(msg);
+      
+      danger.github.api.issues.createComment({
+        owner: PRInfo.base.owner,
+        repo: PRInfo.base.repo,
+        number: danger.github.issue.number,
+        body: msg,
+      })
     }
 
-    const filesThatCanBeUpdated = formatResults.filter(
-      fileResult => fileResult.status === `needUpdate`
-    );
-    if (filesThatCanBeUpdated.length > 0) {
-      console.log("creating commit");
-      await createCommit(filesThatCanBeUpdated, PRInfo.head);
-    }
+
   } catch (e) {
     console.log("err", e);
   }
