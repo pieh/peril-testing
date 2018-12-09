@@ -122,8 +122,8 @@ const configureFormatter = async (prInfo: PRInfo) => {
     };
   };
   const prettierFormat = async (task, content: string) => {
-    const finfo = await prettier.getFileInfo(task.filename);
-    const formattedText = await prettier.format(content, {
+    const finfo = await Prettier.getFileInfo(task.filename);
+    const formattedText = await Prettier.format(content, {
       ...prettierconfig,
       parser: finfo.inferredParser
     });
