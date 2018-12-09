@@ -123,7 +123,9 @@ const configureFormatter = async (prInfo: PRInfo) => {
   const prettierConfig = JSON.parse(await grabFileContent(prInfo.base, `.prettierrc`))
 
   // need to let eslint know about prettier settings
-  eslintConfig.rules[`prettier/prettier`] = [`error`, prettierConfig]
+  eslintConfig.rules[`prettier/prettier`] = [`error`, prettierConfig, {
+    "usePrettierrc": false
+  }]
 
   const cli = new CLIEngine({
     baseConfig: eslintConfig,
