@@ -214,7 +214,7 @@ const createCommit = async (changedFiles, PRBranchInfo: BranchInfo) => {
 
   console.log('update ref args', updateRefArgs)
 
-  const refUpdate = (await danger.github.api.gitdata.updateRef(commitArgs)).data
+  const refUpdate = (await danger.github.api.gitdata.updateReference(commitArgs)).data
 
   console.log('update ref data', refUpdate)
   // console.log('tree', tree)
