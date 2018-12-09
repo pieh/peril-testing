@@ -106,12 +106,16 @@ const getEslintFormatter = PRInfo => {
 }
 
 const configureFormatters = async (base : BranchInfo) => {
+  try {
   const eslintC = await danger.github.api.repos.getContent({
     ...base,
     path: `.eslintrc.json`
   })
 
   console.log(eslintC)
+} catch( e) {
+  console.log(e)
+}
 } 
 
 const extToFormatter: { [index:string] : string } = {
