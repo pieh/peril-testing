@@ -361,22 +361,25 @@ export const shouldFormat = async () => {
 
     // show inline message about files that can't be fully autofixed
     const filesThatCantBeFullyFixes = formatResults.filter(
-      fileResult => fileResult.errorDetails
+      fileResult => !!fileResult.errorDetails
     );
 
     if (filesThatCantBeFullyFixes.length > 0) {
       const msg = filesThatCantBeFullyFixes
         .map(
-          fileResult =>
-            `### ${fileResult.filename}:\n` +
+          fileResult => {
+            const errorsInFile = fileResult.errorDetails.map(errorDetail => {
+              return `Line ${errorDetail.line}:\n${errorDetail.msg}`
+            }).join(`\n\n`)
+
+            return `### ${fileResult.filename}:\n` +
             `\`\`\`\n` +
-            fileResult.errorDetails +
+            errorsInFile +
             `\n\`\`\``
+          }
+
         )
         .join(`\n\n`);
-
-      // console.log("should display message:\n");
-      // console.log(msg);
 
       const createCommentArgs = {
         owner: PRInfo.base.owner,
