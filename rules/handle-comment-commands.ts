@@ -15,14 +15,21 @@ export const shouldFormat = async () => {
   }
 
   // 
-  const prNumber = danger.github.issue.number
+  const number = danger.github.issue.number
 
-  console.log(`grabing branch data for PR #${prNumber}`)
+  console.log(`grabing branch data for PR #${number}`)
 
+  const [owner, repo] = danger.github.repository.full_name.split('/')
+
+  const prData = wait danger.github.api.pullRequests.get({
+    owner,
+    repo,
+    number,
+  })
   
 
 
-  console.log(danger.github)
+  console.log(prData)
 }
 
 
