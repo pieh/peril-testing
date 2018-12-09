@@ -199,7 +199,9 @@ const extToFormatter: { [index: string]: string } = {
   ".js": `eslint`,
   ".md": `prettier`,
   ".yml": `prettier`,
-  ".yaml": `prettier`
+  ".yaml": `prettier`,
+  ".css": `prettier`,
+  ".scss": `prettier`,
 };
 
 const createCommit = async (changedFiles, PRBranchInfo: BranchInfo) => {
@@ -281,57 +283,55 @@ const createCommit = async (changedFiles, PRBranchInfo: BranchInfo) => {
 
 export const shouldFormat = async () => {
   try {
-  if (!danger.github.issue.pull_request) {
-    console.log(`NOT PR`);
-    return;
+    if (!danger.github.issue.pull_request) {
+      console.log(`NOT PR`);
+      return;
+    }
+
+    if (!danger.github.comment.body.includes(`format`)) {
+      console.log(`comment doesn't include "format"`);
+      return;
+    }
+
+    // Grab branches information and list of files in PR
+    const PRInfo = await getPRInfo(danger.github.issue.number);
+    console.log(PRInfo);
+
+    if (PRInfo.base.ref !== `master`) {
+      console.log("PR against non-master branch");
+      return;
+    }
+
+    // Assign formatters (based on file extension) and filter out files that
+    // aren't linted/formatted
+    const fileTasks = PRInfo.files
+      .map(filename => {
+        return {
+          filename,
+          formatter: extToFormatter[path.extname(filename)]
+        };
+      })
+      .filter(tasks => tasks.formatter);
+
+    if (fileTasks.length === 0) {
+      console.log("No files to format");
+      return;
+    }
+
+    // Create formatters
+    const formatter = await configureFormatter(PRInfo);
+
+    // Format files
+    const formatResults = await Promise.all(fileTasks.map(formatter));
+
+    console.log("creating commit");
+    await createCommit(
+      formatResults.filter(fileResult => fileResult.status === `needUpdate`),
+      PRInfo.head
+    );
+  } catch (e) {
+    console.log("err", e);
   }
-
-  if (!danger.github.comment.body.includes(`format`)) {
-    console.log(`comment doesn't include "format"`);
-    return;
-  }
-
-  // Grab branches information and list of files in PR
-  const PRInfo = await getPRInfo(danger.github.issue.number);
-  console.log(PRInfo);
-
-  if (PRInfo.base.ref !== `master`) {
-    console.log("PR against non-master branch");
-    return;
-  }
-
-  // Assign formatters (based on file extension) and filter out files that
-  // aren't linted/formatted
-  const fileTasks = PRInfo.files
-    .map(filename => {
-      return {
-        filename,
-        formatter: extToFormatter[path.extname(filename)]
-      };
-    })
-    .filter(tasks => tasks.formatter);
-
-  if (fileTasks.length === 0) {
-    console.log("No files to format");
-    return;
-  }
-
-  // Create formatters
-  const formatter = await configureFormatter(PRInfo);
-
-  // Format files
-  const formatResults = await Promise.all(fileTasks.map(formatter));
-
-  console.log('formatResults', formatResults)
-  } catch( e) {
-    console.log('err', e)
-  }
-  return
-  console.log("creating commit");
-  await createCommit(
-    formatResults.filter(fileResult => fileResult.status === `needUpdate`),
-    PRInfo.head
-  );
 };
 
 export default async () => {
