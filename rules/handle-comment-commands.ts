@@ -139,14 +139,19 @@ const createCommit = async (changedFiles, PRBranchInfo: BranchInfo) => {
 
 
   try {
-  const tree = (await danger.github.api.gitdata.getTree({
-    owner: PRBranchInfo.owner,
-    repo: PRBranchInfo.repo,
-    tree_sha: PRBranchInfo.sha,
-  })).data
+
+    const oldTreeArgs = {
+      owner: PRBranchInfo.owner,
+      repo: PRBranchInfo.repo,
+      tree_sha: PRBranchInfo.sha,
+    }
+
+    console.log('old tree args', oldTreeArgs)
+
+  const tree = (await danger.github.api.gitdata.getTree(oldTreeArgs)).data
 
 
-  console.log('tree data', tree)
+  console.log('old tree data', tree)
 
   // create blobs
   // const changedFilesWithBlobs = Promise.all(changedFiles.map(async changedFile => {
