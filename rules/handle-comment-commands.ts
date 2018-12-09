@@ -144,12 +144,15 @@ const configureFormatter = async (prInfo: PRInfo) => {
       return {
         status: `needUpdate`,
         output: result.output,
-        errorDetails: result.messages && result.messages.length > 0 && result.messages.map((eslintMessage: EslintMessage) => {
-          return {
-            msg: eslintMessage.message,
-            line: eslintMessage.line
-          };
-        })
+        errorDetails:
+          result.messages &&
+          result.messages.length > 0 &&
+          result.messages.map((eslintMessage: EslintMessage) => {
+            return {
+              msg: eslintMessage.message,
+              line: eslintMessage.line
+            };
+          })
       };
     }
 
@@ -372,18 +375,20 @@ export const shouldFormat = async () => {
         )
         .join(`\n\n`);
 
-      console.log("should display message:\n");
-      console.log(msg);
-      
-      danger.github.api.issues.createComment({
+      // console.log("should display message:\n");
+      // console.log(msg);
+
+      const createCommentArgs = {
         owner: PRInfo.base.owner,
         repo: PRInfo.base.repo,
         number: danger.github.issue.number,
-        body: msg,
-      })
+        body: msg
+      }
+
+      console.log('create comment args', createCommentArgs)
+
+      await danger.github.api.issues.createComment(createCommentArgs);
     }
-
-
   } catch (e) {
     console.log("err", e);
   }
