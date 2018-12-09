@@ -138,7 +138,7 @@ const configureFormatter = async (prInfo: PRInfo) => {
     }
 
     return {
-      status: `ok`
+      status: `skip`
     };
   };
   const prettierFormat = async (
@@ -160,11 +160,9 @@ const configureFormatter = async (prInfo: PRInfo) => {
       }
 
       return {
-        status: `ok`
+        status: `skip`
       };
     } catch (e) {
-      e.message;
-
       return {
         status: `formatError`,
         errorDetails: e.toString()
@@ -194,7 +192,7 @@ const configureFormatter = async (prInfo: PRInfo) => {
     }
 
     return {
-      status: `ok`,
+      status: `skip`,
       filename: task.filename
     };
   };
