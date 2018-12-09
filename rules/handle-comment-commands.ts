@@ -332,6 +332,8 @@ export const shouldFormat = async () => {
     // Format files
     const formatResults = await Promise.all(fileTasks.map(formatter));
 
+    console.log('formatResults', formatResults)
+
     // show message about files that can't be fully autofixed
     const filesThatCantBeFullyFixes = formatResults.filter(
       fileResult => fileResult.errorDetails
