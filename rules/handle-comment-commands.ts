@@ -1,6 +1,7 @@
 
 import { danger, warn } from 'danger';
 import * as path from 'path'
+import { CLIEngine } from 'eslint'
 
 type FileData = {
   filename: string,
@@ -60,19 +61,62 @@ const getPRInfo = async (number: Number): Promise<PRInfo> => {
   }
 }
 
-const memoizedConfigs = new Map()
+// let elintConfig = null
+// let prettierConfig = null
 
-const eslintFormat = (filename: string) => {
+// const configs = new Map()
+
+// const getConfig = async (configFileName:string) => {
+//   if (configs.has(configFileName)) {
+//     return configs.get(configFileName)
+//   }
+
+//   danger.github.api.repos.getContent()
+// }
+
+const eslintFormat = async (filename: string) => {
   console.log('eslint formatting', filename)
+
+  const { ...esconfig } = JSON.parse(
+    fs.readFileSync(`./wat-eslintrc`, { encoding: `utf-8` })
+  )
+  const prettierconfig = JSON.parse(
+    fs.readFileSync(`./wat-prettierrc`, { encoding: `utf-8` })
+  )
+
+  esconfig.rules[`prettier/prettier`] = [`error`, prettierconfig]
+
+  var cli = new CLIEngine({
+    baseConfig: esconfig,
+    fix: true,
+  })
+
+  const fileName = `foo.js`
+  const text = fs.readFileSync(fileName, { encoding: `utf-8` })
+  const report = cli.executeOnText(text, `fileName`)
+  console.log(report.results[0])
 }
 
 const prettierFormat = (filename: string) => {
   console.log('prettier formatting', filename)
 }
 
-const extToFormatter: { [index:string] : Function } = {
-  ".js": eslintFormat,
-  ".md": prettierFormat,
+const getEslintFormatter = PRInfo => {
+
+}
+
+const configureFormatters = async (base : BranchInfo) => {
+  const eslintC = await danger.github.api.repos.getContent({
+    ...base,
+    path: `.eslintrc.json`
+  })
+
+  console.log(eslintC)
+} 
+
+const extToFormatter: { [index:string] : string } = {
+  ".js": `eslint`,
+  ".md": `prettier`,
 }
 
 export const shouldFormat = async () => {
@@ -88,6 +132,12 @@ export const shouldFormat = async () => {
 
   // Grab branches information and list of files in PR
   const PRInfo = await getPRInfo(danger.github.issue.number)
+  console.log(PRInfo)
+
+  if (PRInfo.base.repo !== `master`) {
+    console.log('PR against non-master branch')
+    return
+  }
 
   // Assign formatters (based on file extension) and filter out files that
   // aren't linted/formatted
@@ -98,14 +148,14 @@ export const shouldFormat = async () => {
     }
   }).filter(tasks => tasks.formatter)
 
+  // create formatters (read configuration from base branch)
+  const formatters = await configureFormatters(PRInfo.base)
+
   // Format files
-  const formatResults = await Promise.all(fileTasks.map(async task => {
-    return await task.formatter(task.filename)
-  }))
-
-
-
-  console.log(PRInfo)
+  // const formatResults = await Promise.all(fileTasks.map(async task => {
+  //   const formatterFunction = 
+  //   return await task.formatter(task.filename)
+  // }))
 }
 
 
