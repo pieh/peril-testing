@@ -136,7 +136,6 @@ const configureFormatter = async (prInfo: PRInfo) => {
   })
 
   return async task => {
-    console.log('formatter', task.formatter)
     if (task.formatter === `eslint`) {
       const { content, sha } = await grabFileContent(prInfo.head, task.filename)
       const report = cli.executeOnText(content, task.filename)
