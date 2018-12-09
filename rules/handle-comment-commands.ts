@@ -2,6 +2,35 @@
 import { danger, warn } from 'danger';
 import * as path from 'path'
 
+const getBranchInformation = responseFragment => {
+  const [repo, owner] = responseFragment.repo.full_name.split('/')
+  return {
+    repo,
+    owner,
+    ref: responseFragment.ref
+  }
+}
+
+const getPRInfo = async number => {
+  console.log(`grabing branch data for PR #${number}`)
+
+  const [mainOwner, repo] = danger.github.repository.full_name.split('/')
+  const prData = await danger.github.api.pullRequests.get({
+    owner: mainOwner,
+    repo,
+    number,
+  })
+
+
+
+  const [owner, branch ] = prData.data
+
+  return {
+    base: getBranchInformation(prData.data.base),
+    head: getBranchInformation(prData.data.head)
+  }
+}
+
 export const shouldFormat = async () => {
   if (!danger.github.issue.pull_request) {
     // this is issue, not PR
@@ -14,20 +43,10 @@ export const shouldFormat = async () => {
     return
   }
 
-  // 
-  const number = danger.github.issue.number
+  const PRInfo = await getPRInfo(danger.github.issue.number)
 
-  console.log(`grabing branch data for PR #${number}`)
-
-  const [owner, repo] = danger.github.repository.full_name.split('/')
-
-  const prData = await danger.github.api.pullRequests.get({
-    owner,
-    repo,
-    number,
-  })
   
-
+  
 
   console.log(prData)
 }
