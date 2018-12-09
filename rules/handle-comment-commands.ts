@@ -143,6 +143,14 @@ const configureFormatter = async (prInfo: PRInfo) => {
       } else {
         console.log(`${task.filename}: OK`)
       }
+
+      if (task.filename === `packages/gatsby/src/utils/cache.js`) {
+        console.log('BEFORE:\n---')
+        console.log(content)
+        console.log('AFTER:\n---')
+        console.log(result.output)
+      }
+
       return
     }
 
