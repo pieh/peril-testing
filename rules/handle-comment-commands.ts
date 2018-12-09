@@ -138,8 +138,10 @@ const configureFormatter = async (prInfo: PRInfo) => {
       const content = await grabFileContent(prInfo.head, task.filename)
       const report = cli.executeOnText(content, task.filename)
 
-      console.log('run formatting')
-      console.log(report)
+      console.log('run formatting', task.filename)
+
+      // report.results[0]
+      console.log(report.results[0])
       
       } catch( e) {
         console.log(':(', e)
