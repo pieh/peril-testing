@@ -3,15 +3,31 @@
   "settings": {
     "ignored_repos": [],
     "env_vars": [],
-    "modules": ["joi", "js-yaml"]
+    "modules": [
+      "joi",
+      "js-yaml",
+      "babel-eslint@^10.0.1",
+      "eslint@^5.6.1",
+      "eslint-config-google@^0.10.0",
+      "eslint-config-prettier@^3.1.0",
+      "eslint-plugin-flow-vars@^0.5.0",
+      "eslint-plugin-flowtype@^2.50.3",
+      "eslint-plugin-import@^2.14.0",
+      "eslint-plugin-jsx-a11y@^6.1.2",
+      "eslint-plugin-prettier@^3.0.0",
+      "eslint-plugin-react@^7.11.1",
+      "prettier@^1.14.3"
+    ]
   },
   "rules": {},
   "repos": {
-    "pieh/peril-testing" : {
+    "pieh/peril-testing": {
       "pull_request": ["rules/validate-yaml.ts"]
     },
     "pieh/gatsby": {
-      "issue_comment.created": ["pieh/peril-testing@rules/handle-comment-commands.ts"]
+      "issue_comment.created": [
+        "pieh/peril-testing@rules/handle-comment-commands.ts"
+      ]
     }
   }
 }
