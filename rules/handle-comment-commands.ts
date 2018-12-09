@@ -207,7 +207,7 @@ const createCommit = async (changedFiles, PRBranchInfo: BranchInfo) => {
   const updateRefArgs = {
     owner: PRBranchInfo.owner,
     repo: PRBranchInfo.repo,
-    ref: `refs/heads/${PRBranchInfo.ref}`,
+    ref: `heads/${PRBranchInfo.ref}`,
     sha: commit.sha,
     force: false
   }
