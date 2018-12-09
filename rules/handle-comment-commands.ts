@@ -145,6 +145,9 @@ const createCommit = async (changedFiles, PRBranchInfo: BranchInfo) => {
     tree_sha: PRBranchInfo.sha,
   })).data
 
+
+  console.log('tree data', tree)
+
   // create blobs
   // const changedFilesWithBlobs = Promise.all(changedFiles.map(async changedFile => {
   //   const reponse = await danger.github.api.gitdata.createBlob({
@@ -159,7 +162,7 @@ const createCommit = async (changedFiles, PRBranchInfo: BranchInfo) => {
   //   }
   // }))
 
-  const newTree = (await danger.github.api.gitdata.createTree({
+  const newTreeArgs = {
     owner: PRBranchInfo.owner,
     repo: PRBranchInfo.repo,
     tree: changedFiles.map(fileData => {
@@ -171,9 +174,15 @@ const createCommit = async (changedFiles, PRBranchInfo: BranchInfo) => {
       }
     }),
     base_tree: tree.sha,
-  })).data
+  }
 
-  const commit = (await danger.github.api.gitdata.createCommit({
+  console.log('new tree args', newTreeArgs)
+
+  const newTree = (await danger.github.api.gitdata.createTree(newTreeArgs)).data
+
+  console.log('new tree data', newTree)
+
+  const commitArgs ={
     owner: PRBranchInfo.owner,
     repo: PRBranchInfo.repo,
     message: 'chore: format',
@@ -181,10 +190,14 @@ const createCommit = async (changedFiles, PRBranchInfo: BranchInfo) => {
     parents: [
       PRBranchInfo.sha
     ]
-  })).data
+  }
 
+  console.log('new commit args', commitArgs)
 
-  console.log('tree', tree)
+  const commit = (await danger.github.api.gitdata.createCommit(commitArgs)).data
+
+  console.log('new commit data', commit)
+  // console.log('tree', tree)
 } catch (e) {
   console.log(':(', e)
 }
