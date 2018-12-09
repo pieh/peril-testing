@@ -202,6 +202,21 @@ const createCommit = async (changedFiles, PRBranchInfo: BranchInfo) => {
   const commit = (await danger.github.api.gitdata.createCommit(commitArgs)).data
 
   console.log('new commit data', commit)
+
+  // update branch to point to new commit
+  const updateRefArgs = {
+    owner: PRBranchInfo.owner,
+    repo: PRBranchInfo.repo,
+    ref: PRBranchInfo.ref,
+    sha: commit.sha,
+    force: false
+  }
+
+  console.log('update ref args', updateRefArgs)
+
+  const refUpdate = (await danger.github.api.gitdata.updateRef(commitArgs)).data
+
+  console.log('update ref data', refUpdate)
   // console.log('tree', tree)
 } catch (e) {
   console.log(':(', e)
