@@ -349,6 +349,8 @@ export const shouldFormat = async () => {
         )
         .join(`\n\n`);
 
+      console.log('should display message:\n')
+      console.log(msg)
       message(msg);
     }
 
