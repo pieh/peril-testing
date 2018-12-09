@@ -74,28 +74,28 @@ const getPRInfo = async (number: Number): Promise<PRInfo> => {
 //   danger.github.api.repos.getContent()
 // }
 
-const eslintFormat = async (filename: string) => {
-  console.log('eslint formatting', filename)
+// const eslintFormat = async (filename: string) => {
+//   console.log('eslint formatting', filename)
 
-  const { ...esconfig } = JSON.parse(
-    fs.readFileSync(`./wat-eslintrc`, { encoding: `utf-8` })
-  )
-  const prettierconfig = JSON.parse(
-    fs.readFileSync(`./wat-prettierrc`, { encoding: `utf-8` })
-  )
+//   const { ...esconfig } = JSON.parse(
+//     fs.readFileSync(`./wat-eslintrc`, { encoding: `utf-8` })
+//   )
+//   const prettierconfig = JSON.parse(
+//     fs.readFileSync(`./wat-prettierrc`, { encoding: `utf-8` })
+//   )
 
-  esconfig.rules[`prettier/prettier`] = [`error`, prettierconfig]
+//   esconfig.rules[`prettier/prettier`] = [`error`, prettierconfig]
 
-  var cli = new CLIEngine({
-    baseConfig: esconfig,
-    fix: true,
-  })
+//   var cli = new CLIEngine({
+//     baseConfig: esconfig,
+//     fix: true,
+//   })
 
-  const fileName = `foo.js`
-  const text = fs.readFileSync(fileName, { encoding: `utf-8` })
-  const report = cli.executeOnText(text, `fileName`)
-  console.log(report.results[0])
-}
+//   const fileName = `foo.js`
+//   const text = fs.readFileSync(fileName, { encoding: `utf-8` })
+//   const report = cli.executeOnText(text, `fileName`)
+//   console.log(report.results[0])
+// }
 
 const prettierFormat = (filename: string) => {
   console.log('prettier formatting', filename)
@@ -141,12 +141,12 @@ export const shouldFormat = async () => {
 
   // Assign formatters (based on file extension) and filter out files that
   // aren't linted/formatted
-  const fileTasks = PRInfo.files.map(filename => {
-    return {
-      filename,
-      formatter: extToFormatter[path.extname(filename)]
-    }
-  }).filter(tasks => tasks.formatter)
+  // const fileTasks = PRInfo.files.map(filename => {
+  //   return {
+  //     filename,
+  //     formatter: extToFormatter[path.extname(filename)]
+  //   }
+  // }).filter(tasks => tasks.formatter)
 
   // create formatters (read configuration from base branch)
   const formatters = await configureFormatters(PRInfo.base)
