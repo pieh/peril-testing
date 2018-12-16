@@ -241,51 +241,35 @@ const createCommit = async (
   changedFiles: FormatResult[],
   PRBranchInfo: BranchInfo
 ) => {
-  // console.log("authenticating octokit with token that can push")
-  // const githubClient = new octokit()
-
-  // githubClient.authenticate({
-  //   type: 'token',
-  //   token: peril.env.GITHUB_ACCESS_TOKEN,
-  // })
-  // peril.env.GITHUB_ACCESS_TOKEN:
-
-  // console.log("creating commit", {
-  //   changedFiles,
-  //   PRBranchInfo
-  // });
-
   const repoCloneDir = path.join(process.cwd(), `_pr_clone_${danger.github.issue.number}`)
   try {
-  // const cloneCmd = `git clone --single-branch --branch ${PRBranchInfo.ref} git@github.com:${PRBranchInfo.owner}/${PRBranchInfo.repo}.git ${repoCloneDir}`
+    const cloneCmd = ({ accessToken }: { accessToken: string }) => `git clone --single-branch --branch ${PRBranchInfo.ref} https://${accessToken}@github.com/${PRBranchInfo.owner}/${PRBranchInfo.repo}.git ${repoCloneDir}`
 
-  const cloneCmd = ({ accessToken }: { accessToken: string }) => `git clone --single-branch --branch ${PRBranchInfo.ref} https://${accessToken}@github.com/${PRBranchInfo.owner}/${PRBranchInfo.repo}.git ${repoCloneDir}`
+    console.log(`cloning "${cloneCmd({ accessToken: '<access_token>'})}"`)
+    childProcess.execSync(cloneCmd({ accessToken: peril.env.GITHUB_ACCESS_TOKEN} ))
 
-  console.log(`cloning "${cloneCmd({ accessToken: '<access_token>'})}"`)
-  childProcess.execSync(cloneCmd({ accessToken: peril.env.GITHUB_ACCESS_TOKEN} ))
+    const gitExecCommandsArg = {
+      cwd: repoCloneDir
+    }
 
-  const gitExecCommandsArg = {
-    cwd: repoCloneDir
-  }
+    await Promise.all(changedFiles.map(async fileData => {
+      await fs.outputFile(path.join(repoCloneDir, fileData.filename), fileData.output)
+      const gitAddCmd  = `git add ${fileData.filename}`
+      console.log(`changed ${fileData.filename} and staging: ${gitAddCmd}`)
+      await childProcess.execSync(gitAddCmd, gitExecCommandsArg)
+    }))
 
-  await Promise.all(changedFiles.map(async fileData => {
-    await fs.outputFile(path.join(repoCloneDir, fileData.filename), fileData.output)
-    const gitAddCmd  = `git add ${fileData.filename}`
-    console.log(`changed ${fileData.filename} and staging: ${gitAddCmd}`)
-    await childProcess.execSync(gitAddCmd, gitExecCommandsArg)
-  }))
+    childProcess.execSync(`git config user.email "misiek.piechowiak@gmail.com"`, gitExecCommandsArg)
+    childProcess.execSync(`git config user.name "pieh-peril-test"`, gitExecCommandsArg)
+    
 
-  childProcess.execSync(`git config user.email "misiek.piechowiak@gmail.com"`, gitExecCommandsArg)
-  childProcess.execSync(`git config user.name "pieh-peril-test"`, gitExecCommandsArg)
-  
+    const commitCmd = `git commit --author="pieh-peril-test<misiek.piechowiak@gmail.com>"  -m "chore: format"`
+    console.log(`commiting: ${commitCmd}`)
+    childProcess.execSync(commitCmd, gitExecCommandsArg)
 
-  const commitCmd = `git commit --author="pieh-peril-test<misiek.piechowiak@gmail.com>"  -m "chore: format"`
-  console.log(`commiting: ${commitCmd}`)
-  childProcess.execSync(commitCmd, gitExecCommandsArg)
-
-  const pushCmd = `git push origin ${PRBranchInfo.ref}`
-  console.log(`pushing: ${pushCmd}`)
-  childProcess.execSync(pushCmd, gitExecCommandsArg)
+    const pushCmd = `git push origin ${PRBranchInfo.ref}`
+    console.log(`pushing: ${pushCmd}`)
+    childProcess.execSync(pushCmd, gitExecCommandsArg)
   } catch(e) {
     console.log('error', e)
   }
@@ -295,9 +279,20 @@ const createCommit = async (
   childProcess.execSync(cleanupCmd)
 
   /*
-
   try {
+    // console.log("authenticating octokit with token that can push")
+    // const githubClient = new octokit()
 
+    // githubClient.authenticate({
+    //   type: 'token',
+    //   token: peril.env.GITHUB_ACCESS_TOKEN,
+    // })
+    // peril.env.GITHUB_ACCESS_TOKEN:
+
+    // console.log("creating commit", {
+    //   changedFiles,
+    //   PRBranchInfo
+    // });
 
     const oldTreeArgs = {
       owner: PRBranchInfo.owner,
@@ -464,7 +459,8 @@ export const shouldFormat = async () => {
 
       console.log("create comment args", createCommentArgs);
 
-      await danger.github.api.issues.createComment(createCommentArgs);
+      const commentData = (await danger.github.api.issues.createComment(createCommentArgs)).data;
+      console.log('created comment', commentData)
     }
   } catch (e) {
     console.log("err", e);
