@@ -5,7 +5,6 @@ import * as Prettier from "prettier";
 import * as octokit from "@octokit/rest"
 import * as childProcess from "child_process"
 import * as fs from "fs-extra"
-import { DH_NOT_SUITABLE_GENERATOR } from "constants";
 
 type FileData = {
   filename: string;
@@ -263,7 +262,7 @@ const createCommenter = (PRInfo: PRInfo) => {
 
     if (comment_id) {
       const createCommentArgs = {
-        ...danger,commentArgs,
+        ...commentArgs,
         body,
       }
       console.log("create comment args", createCommentArgs);
@@ -272,7 +271,7 @@ const createCommenter = (PRInfo: PRInfo) => {
       comment_id = commentData.id
     } else {
       const createCommentArgs = {
-        ...danger,commentArgs,
+        ...commentArgs,
         body,
         comment_id
       }
