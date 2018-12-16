@@ -5,6 +5,17 @@ import * as Prettier from "prettier";
 import * as octokit from "@octokit/rest";
 import * as childProcess from "child_process";
 import * as fs from "fs-extra";
+import { DH_NOT_SUITABLE_GENERATOR } from "constants";
+
+/*
+// const gatsbyTeams = (await API.orgs.getTeams({
+//   org: "gatsbyjs"
+// })).data
+*/
+// const GatsbyAdminTeamID = 2772524;
+
+// below is actually Starters team - testing if it will work correctly
+const GatsbyAdminTeamID = 1942251;
 
 type FileData = {
   filename: string;
@@ -463,17 +474,45 @@ export const shouldFormat = async () => {
       return;
     }
 
-    if (!danger.github.comment.body.includes(`format`)) {
+    const includeFormatCommand = danger.github.comment.body.includes(`format`);
+
+    if (!includeFormatCommand) {
       console.log(`comment doesn't include "format"`);
       return;
     }
+
+    let byUserInAdminTeam = false;
+
+    const comment = createCommenter(PRInfo);
 
     // Grab branches information and list of files in PR
     const PRInfo = await getPRInfo(danger.github.issue.number);
     console.log(PRInfo);
 
     if (PRInfo.base.ref !== `master`) {
+      await comment(`We auto-format only PRs against \`master\` branch.`);
       console.log("PR against non-master branch");
+      return;
+    }
+
+    try {
+      const membershipData = (await danger.github.api.orgs.getTeamMembership({
+        team_id: GatsbyAdminTeamID,
+        username: danger.github.issue.user.login
+      })).data;
+
+      if (membershipData.state === `active`) {
+        byUserInAdminTeam = true;
+      }
+    } catch (e) {
+      // github api throws if user is not in team so lets catch that
+    }
+
+    if (!byUserInAdminTeam) {
+      console.log(`by someone not in Admin team`);
+      await comment(
+        `Autoformat is experimental - for now, only admins can trigger formats.`
+      );
       return;
     }
 
@@ -500,8 +539,6 @@ export const shouldFormat = async () => {
     const formatResults = await Promise.all(fileTasks.map(formatter));
 
     console.log("formatResults", formatResults);
-
-    const comment = createCommenter(PRInfo);
 
     // show inline message about files that can't be fully autofixed
     const filesThatCantBeFullyFixes = formatResults.filter(
