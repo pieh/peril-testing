@@ -472,7 +472,5 @@ export const shouldFormat = async () => {
 };
 
 export default async () => {
-  console.log('test', peril.env.GITHUB_ACCESS_TOKEN)
-
-  return shouldFormat();
+  return await shouldFormat();
 };
