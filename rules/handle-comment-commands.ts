@@ -237,9 +237,11 @@ const extToFormatter: { [index: string]: string } = {
   ".scss": `prettier`
 };
 
-const makeMDListItem = content => content.split(`\n`)
-.map((line, index) => (index === 0 ? `* ${line}` : `  ${line}`))
-.join("\n")
+const makeMDListItem = content =>
+  content
+    .split(`\n`)
+    .map((line, index) => (index === 0 ? `* ${line}` : `  ${line}`))
+    .join("\n");
 
 const createCommenter = (PRInfo: PRInfo) => {
   let previousBody: string = "";
@@ -254,7 +256,7 @@ const createCommenter = (PRInfo: PRInfo) => {
   return async (content: string) => {
     let body = content;
 
-    const listItemContent = makeMDListItem(content)
+    const listItemContent = makeMDListItem(content);
 
     if (previousBody !== null) {
       body = `${previousBody}\n${listItemContent}`;
@@ -522,9 +524,9 @@ export const shouldFormat = async () => {
 
           return makeMDListItem(
             `\`${fileResult.filename}\`:\n\n` +
-            `\`\`\`\n` +
-            fixF(errorsInFile) +
-            `\n\`\`\``
+              `\`\`\`\n` +
+              fixF(errorsInFile) +
+              `\n\`\`\``
           );
         })
         .join(`\n`);
