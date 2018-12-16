@@ -274,8 +274,8 @@ const createCommit = async (
     await childProcess.execSync(gitAddCmd, gitExecCommandsArg)
   }))
 
-  childProcess.execSync(`git config user.email "misiek.piechowiak@gmail.com"`)
-  childProcess.execSync(`git config user.name "pieh-peril-test"`)
+  childProcess.execSync(`git config user.email "misiek.piechowiak@gmail.com"`, gitExecCommandsArg)
+  childProcess.execSync(`git config user.name "pieh-peril-test"`, gitExecCommandsArg)
   
 
   const commitCmd = `git commit --author="pieh-peril-test<misiek.piechowiak@gmail.com>"  -m "chore: format"`
