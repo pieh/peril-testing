@@ -268,6 +268,10 @@ const createCommit = async (
 
   await Promise.all(changedFiles.map(async fileData => {
     await fs.outputFile(path.join(repoCloneDir, fileData.filename), fileData.output)
+    const gitAddCmd  = `git add ${fileData.filename}`
+    await childProcess.execSync(gitAddCmd, {
+      cwd: repoCloneDir
+    })
   }))
 
 
