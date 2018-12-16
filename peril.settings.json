@@ -3,7 +3,7 @@
   "settings": {
     "ignored_repos": [],
     "env_vars": [
-      "GITHUB_PIEH_TESTING"
+      "GITHUB_ACCESS_TOKEN"
     ],
     "modules": [
       "joi",
