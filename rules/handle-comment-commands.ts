@@ -4,6 +4,7 @@ import { CLIEngine } from "eslint";
 import * as Prettier from "prettier";
 import * as octokit from "@octokit/rest"
 import * as childProcess from "child_process"
+import * as fs from "fs-extra"
 
 type FileData = {
   filename: string;
@@ -263,7 +264,11 @@ const createCommit = async (
     cmd,
   })
 
-  childProcess.execSync(cmd)
+  // childProcess.execSync(cmd)
+
+  await Promise.all(changedFiles.map(async fileData => {
+    await fs.outputFile(path.join(repoCloneDir, fileData.filename), fileData.output)
+  }))
 
 
   /*
