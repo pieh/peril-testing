@@ -264,21 +264,21 @@ const createCommenter = (PRInfo: PRInfo) => {
       const createCommentArgs = {
         ...commentArgs,
         body,
-      }
-      console.log("create comment args", createCommentArgs);
-      const commentData = (await danger.github.api.issues.createComment(createCommentArgs)).data;
-      console.log('created comment', commentData)
-      comment_id = commentData.id
-    } else {
-      const createCommentArgs = {
-        ...commentArgs,
-        body,
         comment_id
       }
 
       console.log("update comment args", createCommentArgs);
       const commentData = (await danger.github.api.issues.editComment(createCommentArgs)).data
       console.log("updated comment", commentData);
+    } else {
+      const createCommentArgs = {
+        ...commentArgs,
+        body,
+      }
+      console.log("create comment args", createCommentArgs);
+      const commentData = (await danger.github.api.issues.createComment(createCommentArgs)).data;
+      console.log('created comment', commentData)
+      comment_id = commentData.id
     }
 
     previousBody = body
