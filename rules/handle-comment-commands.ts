@@ -483,11 +483,13 @@ export const shouldFormat = async () => {
 
     let byUserInAdminTeam = false;
 
-    const comment = createCommenter(PRInfo);
+    
 
     // Grab branches information and list of files in PR
     const PRInfo = await getPRInfo(danger.github.issue.number);
     console.log(PRInfo);
+
+    const comment = createCommenter(PRInfo);
 
     if (PRInfo.base.ref !== `master`) {
       await comment(`We auto-format only PRs against \`master\` branch.`);
