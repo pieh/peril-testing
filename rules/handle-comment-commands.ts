@@ -416,6 +416,7 @@ export const shouldFormat = async () => {
 };
 
 export default async () => {
-  console.log('test', peril.env.GITHUB_PIEH_TESTING)
+  console.log('test', peril.env)
+  console.log('b', process.env)
   return shouldFormat();
 };
