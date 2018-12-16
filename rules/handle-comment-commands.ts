@@ -240,7 +240,7 @@ const createCommit = async (
   changedFiles: FormatResult[],
   PRBranchInfo: BranchInfo
 ) => {
-  console.log("authenticating octokit with token that can push")
+  // console.log("authenticating octokit with token that can push")
   // const githubClient = new octokit()
 
   // githubClient.authenticate({
@@ -256,7 +256,16 @@ const createCommit = async (
 
   const repoCloneDir = path.join(process.cwd(), `_pr_clone_${danger.github.issue.number}`)
   
-  childProcess.execSync(`git clone --single-branch --branch ${PRBranchInfo.ref} git@github.com:${PRBranchInfo.owner}/${PRBranchInfo.repo}.git`)
+  const cmd = `git clone --single-branch --branch ${PRBranchInfo.ref} git@github.com:${PRBranchInfo.owner}/${PRBranchInfo.repo}.git`
+
+  console.log('clonging', {
+    repoCloneDir,
+    cmd,
+  })
+
+  childProcess.execSync(cmd)
+
+
   /*
 
   try {
