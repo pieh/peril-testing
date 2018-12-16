@@ -140,15 +140,16 @@ const configureFormatter = async (prInfo: PRInfo) => {
     const report = cli.executeOnText(content, task.filename);
     const result = report.results[0];
 
-    const errorDetails = result.messages &&
-    result.messages.length > 0 &&
-    result.messages.map((eslintMessage: EslintMessage) => {
-      return {
-        msg: eslintMessage.message,
-        line: eslintMessage.line,
-        endLine: eslintMessage.endLine
-      };
-    })
+    const errorDetails =
+      result.messages &&
+      result.messages.length > 0 &&
+      result.messages.map((eslintMessage: EslintMessage) => {
+        return {
+          msg: eslintMessage.message,
+          line: eslintMessage.line,
+          endLine: eslintMessage.endLine
+        };
+      });
 
     if (result.output && content !== result.output) {
       // create details
@@ -156,8 +157,7 @@ const configureFormatter = async (prInfo: PRInfo) => {
       return {
         status: `needUpdate`,
         output: result.output,
-        errorDetails,
-          
+        errorDetails
       };
     }
 
@@ -416,5 +416,6 @@ export const shouldFormat = async () => {
 };
 
 export default async () => {
+  console.log('test', process.env.GITHUB_PIEH_TESTING)
   return shouldFormat();
 };
