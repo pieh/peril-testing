@@ -5,6 +5,7 @@ import * as Prettier from "prettier";
 import * as octokit from "@octokit/rest"
 import * as childProcess from "child_process"
 import * as fs from "fs-extra"
+import { DH_NOT_SUITABLE_GENERATOR } from "constants";
 
 type FileData = {
   filename: string;
@@ -237,12 +238,65 @@ const extToFormatter: { [index: string]: string } = {
   ".scss": `prettier`
 };
 
+const createCommenter = (PRInfo: PRInfo) => {
+  let previousBody: string = ''
+  let comment_id: Number = 0
+  
+  const commentArgs = {
+    owner: PRInfo.base.owner,
+    repo: PRInfo.base.repo,
+    number: danger.github.issue.number,
+  }
+
+
+
+  return async (content:string) => {
+    let body = content
+
+    const listItemContent = content.split(`\n`).map((line, index) => index === 0 ? `* ${line}`: `  ${line}`).join('\n')
+
+    if (previousBody !== null) {
+      body = listItemContent
+    } else {
+      body = `${previousBody}\n${listItemContent}`
+    }
+
+    if (comment_id) {
+      const createCommentArgs = {
+        ...danger,commentArgs,
+        body,
+      }
+      console.log("create comment args", createCommentArgs);
+      const commentData = (await danger.github.api.issues.createComment(createCommentArgs)).data;
+      console.log('created comment', commentData)
+      comment_id = commentData.id
+    } else {
+      const createCommentArgs = {
+        ...danger,commentArgs,
+        body,
+        comment_id
+      }
+
+      console.log("update comment args", createCommentArgs);
+      const commentData = (await danger.github.api.issues.editComment(createCommentArgs)).data
+      console.log("updated comment", commentData);
+    }
+
+    previousBody = body
+  }
+}
+
 const createCommit = async (
   changedFiles: FormatResult[],
-  PRBranchInfo: BranchInfo
+  PRBranchInfo: BranchInfo,
+  comment: Function
 ) => {
   const repoCloneDir = path.join(process.cwd(), `_pr_clone_${danger.github.issue.number}`)
   try {
+    const mdListOfChangedFiles = changedFiles.map(fileData => `* \`fileData.filename\``).join('\n')
+    comment(`We can format files:\n${mdListOfChangedFiles}\nand format is in progress`)
+
+
     const cloneCmd = ({ accessToken }: { accessToken: string }) => `git clone --single-branch --branch ${PRBranchInfo.ref} https://${accessToken}@github.com/${PRBranchInfo.owner}/${PRBranchInfo.repo}.git ${repoCloneDir}`
 
     console.log(`cloning "${cloneCmd({ accessToken: '<access_token>'})}"`)
@@ -270,7 +324,10 @@ const createCommit = async (
     const pushCmd = `git push origin ${PRBranchInfo.ref}`
     console.log(`pushing: ${pushCmd}`)
     childProcess.execSync(pushCmd, gitExecCommandsArg)
+
+    comment(`Format complete`)
   } catch(e) {
+    comment(`Something bad happened :(`)
     console.log('error', e)
   }
   // cleanup - delete directory
@@ -414,13 +471,7 @@ export const shouldFormat = async () => {
 
     console.log("formatResults", formatResults);
 
-    const filesThatCanBeUpdated = formatResults.filter(
-      fileResult => fileResult.status === `needUpdate`
-    );
-    if (filesThatCanBeUpdated.length > 0) {
-      console.log("creating commit");
-      await createCommit(filesThatCanBeUpdated, PRInfo.head);
-    }
+    const comment = createCommenter(PRInfo)
 
     // show inline message about files that can't be fully autofixed
     const filesThatCantBeFullyFixes = formatResults.filter(
@@ -442,7 +493,7 @@ export const shouldFormat = async () => {
             .join(`\n\n`);
 
           return (
-            `### ${fileResult.filename}:\n` +
+            `\`${fileResult.filename}\`:\n` +
             `\`\`\`\n` +
             fixF(errorsInFile) +
             `\n\`\`\``
@@ -450,20 +501,29 @@ export const shouldFormat = async () => {
         })
         .join(`\n\n`);
 
-      const createCommentArgs = {
-        owner: PRInfo.base.owner,
-        repo: PRInfo.base.repo,
-        number: danger.github.issue.number,
-        body: msg
-      };
+      comment(`We can't automatically fix at least some errors in:\n${msg}`)
+      // const createCommentArgs = {
+      //   owner: PRInfo.base.owner,
+      //   repo: PRInfo.base.repo,
+      //   number: danger.github.issue.number,
+      //   body: msg
+      // };
 
-      console.log("create comment args", createCommentArgs);
+      // console.log("create comment args", createCommentArgs);
 
-      const commentData = (await danger.github.api.issues.createComment(createCommentArgs)).data;
-      console.log('created comment', commentData)
+      // const commentData = (await danger.github.api.issues.createComment(createCommentArgs)).data;
+      // console.log('created comment', commentData)
     }
   } catch (e) {
     console.log("err", e);
+  }
+
+  const filesThatCanBeUpdated = formatResults.filter(
+    fileResult => fileResult.status === `needUpdate`
+  );
+  if (filesThatCanBeUpdated.length > 0) {
+    console.log("creating commit");
+    await createCommit(filesThatCanBeUpdated, PRInfo.head, comment);
   }
 };
 
