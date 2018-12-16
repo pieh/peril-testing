@@ -257,24 +257,35 @@ const createCommit = async (
 
   const repoCloneDir = path.join(process.cwd(), `_pr_clone_${danger.github.issue.number}`)
   
-  const cmd = `git clone --single-branch --branch ${PRBranchInfo.ref} git@github.com:${PRBranchInfo.owner}/${PRBranchInfo.repo}.git ${repoCloneDir}`
+  const cloneCmd = `git clone --single-branch --branch ${PRBranchInfo.ref} git@github.com:${PRBranchInfo.owner}/${PRBranchInfo.repo}.git ${repoCloneDir}`
 
-  console.log('clonging', {
-    repoCloneDir,
-    cmd,
-  })
+  console.log(`clonging "${cloneCmd}"`)
+  // childProcess.execSync(cloneCmd)
 
-  // childProcess.execSync(cmd)
+  const gitExecCommandsArg = {
+    cwd: repoCloneDir
+  }
 
   await Promise.all(changedFiles.map(async fileData => {
     await fs.outputFile(path.join(repoCloneDir, fileData.filename), fileData.output)
     const gitAddCmd  = `git add ${fileData.filename}`
-    await childProcess.execSync(gitAddCmd, {
-      cwd: repoCloneDir
-    })
+    console.log(`changed ${fileData.filename} and staging: ${gitAddCmd}`)
+    await childProcess.execSync(gitAddCmd, gitExecCommandsArg)
   }))
 
 
+  const commitCmd = `git commit -m "chore: format"`
+  console.log(`commiting: ${commitCmd}`)
+  childProcess.execSync(commitCmd, gitExecCommandsArg)
+
+  const pushCmd = `git push origin ${PRBranchInfo.ref}`
+  console.log(`pushing: ${pushCmd}`)
+  childProcess.execSync(pushCmd, gitExecCommandsArg)
+
+  // cleanup - delete directory
+  const cleanupCmd = `rm -rf ${repoCloneDir}`
+  console.log(`cleanup: "${cleanupCmd}"`)
+  
   /*
 
   try {
