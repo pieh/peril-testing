@@ -517,6 +517,7 @@ export const shouldFormat = async () => {
     console.log("err", e);
   }
 
+  try {
   const filesThatCanBeUpdated = formatResults.filter(
     fileResult => fileResult.status === `needUpdate`
   );
@@ -524,6 +525,9 @@ export const shouldFormat = async () => {
     console.log("creating commit");
     await createCommit(filesThatCanBeUpdated, PRInfo.head, comment);
   }
+} catch(e) {
+  console.log('cant commit', e)
+}
 };
 
 export default async () => {
