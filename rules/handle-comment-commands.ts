@@ -259,7 +259,7 @@ const createCommit = async (
   
   const cloneCmd = `git clone --single-branch --branch ${PRBranchInfo.ref} git@github.com:${PRBranchInfo.owner}/${PRBranchInfo.repo}.git ${repoCloneDir}`
 
-  console.log(`clonging "${cloneCmd}"`)
+  console.log(`cloning "${cloneCmd}"`)
   // childProcess.execSync(cloneCmd)
 
   const gitExecCommandsArg = {
