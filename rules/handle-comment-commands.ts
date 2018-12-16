@@ -16,6 +16,7 @@ import { DH_NOT_SUITABLE_GENERATOR } from "constants";
 
 // below is actually Starters team - testing if it will work correctly
 const GatsbyAdminTeamID = 1942251;
+const FormatTriggerComment = "hokus pokus format".toLowerCase()
 
 type FileData = {
   filename: string;
@@ -474,16 +475,14 @@ export const shouldFormat = async () => {
       return;
     }
 
-    const includeFormatCommand = danger.github.comment.body.includes(`format`);
+    const includeFormatCommand = danger.github.comment.body.toLowerCase().includes(FormatTriggerComment);
 
     if (!includeFormatCommand) {
-      console.log(`comment doesn't include "format"`);
+      console.log(`comment doesn't include "${FormatTriggerComment}"`);
       return;
     }
 
     let byUserInAdminTeam = false;
-
-    
 
     // Grab branches information and list of files in PR
     const PRInfo = await getPRInfo(danger.github.issue.number);
