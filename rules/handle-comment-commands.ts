@@ -256,7 +256,7 @@ const createCommit = async (
 
   const repoCloneDir = path.join(process.cwd(), `_pr_clone_${danger.github.issue.number}`)
   
-  const cmd = `git clone --single-branch --branch ${PRBranchInfo.ref} git@github.com:${PRBranchInfo.owner}/${PRBranchInfo.repo}.git`
+  const cmd = `git clone --single-branch --branch ${PRBranchInfo.ref} git@github.com:${PRBranchInfo.owner}/${PRBranchInfo.repo}.git ${repoCloneDir}`
 
   console.log('clonging', {
     repoCloneDir,
