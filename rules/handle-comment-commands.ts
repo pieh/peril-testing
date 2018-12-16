@@ -12,7 +12,7 @@ import { DH_NOT_SUITABLE_GENERATOR } from "constants";
 //   org: "gatsbyjs"
 // })).data
 */
-const GatsbyAdminTeamID = 2772524;
+const GatsbyAdminTeamID = `2772524`;
 
 // below is actually Starters team - testing if it will work correctly
 // const GatsbyAdminTeamID = 1942251;
@@ -497,7 +497,14 @@ export const shouldFormat = async () => {
     }
 
     try {
-      const membershipData = (await danger.github.api.orgs.getTeamMembership({
+      const userAuthedAPI = new octokit()
+      userAuthedAPI.authenticate({
+        type: 'token',
+        token: peril.env.GITHUB_ACCESS_TOKEN
+      })
+
+      
+      const membershipData = (await userAuthedAPI.orgs.getTeamMembership({
         team_id: GatsbyAdminTeamID,
         username: danger.github.issue.user.login
       })).data;
