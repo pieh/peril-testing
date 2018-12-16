@@ -1,4 +1,4 @@
-import { danger } from "danger";
+import { danger, peril } from "danger";
 import * as path from "path";
 import { CLIEngine } from "eslint";
 import * as Prettier from "prettier";
@@ -416,6 +416,6 @@ export const shouldFormat = async () => {
 };
 
 export default async () => {
-  console.log('test', process.env.GITHUB_PIEH_TESTING)
+  console.log('test', peril.env.GITHUB_PIEH_TESTING)
   return shouldFormat();
 };
