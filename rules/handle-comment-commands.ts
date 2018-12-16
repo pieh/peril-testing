@@ -506,6 +506,7 @@ export const shouldFormat = async () => {
         byUserInAdminTeam = true;
       }
     } catch (e) {
+      console.log('failed membership check', e)
       // github api throws if user is not in team so lets catch that
     }
 
