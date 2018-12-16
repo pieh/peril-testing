@@ -2,7 +2,9 @@
   "$schema": "https://raw.githubusercontent.com/danger/peril/master/peril-settings-json.schema",
   "settings": {
     "ignored_repos": [],
-    "env_vars": [],
+    "env_vars": [
+      "GITHUB_PIEH_TESTING"
+    ],
     "modules": [
       "joi",
       "js-yaml",
