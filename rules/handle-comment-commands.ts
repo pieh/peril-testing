@@ -293,7 +293,7 @@ const createCommit = async (
   const repoCloneDir = path.join(process.cwd(), `_pr_clone_${danger.github.issue.number}`)
   try {
     const mdListOfChangedFiles = changedFiles.map(fileData => `* \`fileData.filename\``).join('\n')
-    comment(`We can format files:\n${mdListOfChangedFiles}\nand format is in progress`)
+    await comment(`We can format files:\n${mdListOfChangedFiles}\nand format is in progress`)
 
 
     const cloneCmd = ({ accessToken }: { accessToken: string }) => `git clone --single-branch --branch ${PRBranchInfo.ref} https://${accessToken}@github.com/${PRBranchInfo.owner}/${PRBranchInfo.repo}.git ${repoCloneDir}`
@@ -324,9 +324,9 @@ const createCommit = async (
     console.log(`pushing: ${pushCmd}`)
     childProcess.execSync(pushCmd, gitExecCommandsArg)
 
-    comment(`Format complete`)
+    await comment(`Format complete`)
   } catch(e) {
-    comment(`Something bad happened :(`)
+    await comment(`Something bad happened :(`)
     console.log('error', e)
   }
   // cleanup - delete directory
@@ -500,7 +500,7 @@ export const shouldFormat = async () => {
         })
         .join(`\n\n`);
 
-      comment(`We can't automatically fix at least some errors in:\n${msg}`)
+      await comment(`We can't automatically fix at least some errors in:\n${msg}`)
       // const createCommentArgs = {
       //   owner: PRInfo.base.owner,
       //   repo: PRInfo.base.repo,
