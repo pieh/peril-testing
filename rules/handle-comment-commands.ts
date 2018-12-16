@@ -256,9 +256,9 @@ const createCommenter = (PRInfo: PRInfo) => {
       .join("\n");
 
     if (previousBody !== null) {
-      body = listItemContent;
-    } else {
       body = `${previousBody}\n${listItemContent}`;
+    } else {
+      body = listItemContent;
     }
 
     if (comment_id) {
