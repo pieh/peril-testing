@@ -260,7 +260,7 @@ const createCommit = async (
   const cloneCmd = `git clone --single-branch --branch ${PRBranchInfo.ref} git@github.com:${PRBranchInfo.owner}/${PRBranchInfo.repo}.git ${repoCloneDir}`
 
   console.log(`cloning "${cloneCmd}"`)
-  // childProcess.execSync(cloneCmd)
+  childProcess.execSync(cloneCmd)
 
   const gitExecCommandsArg = {
     cwd: repoCloneDir
@@ -274,7 +274,7 @@ const createCommit = async (
   }))
 
 
-  const commitCmd = `git commit -m "chore: format"`
+  const commitCmd = `git commit --author="pieh-peril-test<no-reply@example.com>"  -m "chore: format"`
   console.log(`commiting: ${commitCmd}`)
   childProcess.execSync(commitCmd, gitExecCommandsArg)
 
@@ -285,7 +285,8 @@ const createCommit = async (
   // cleanup - delete directory
   const cleanupCmd = `rm -rf ${repoCloneDir}`
   console.log(`cleanup: "${cleanupCmd}"`)
-  
+  childProcess.execSync(cleanupCmd)
+
   /*
 
   try {
