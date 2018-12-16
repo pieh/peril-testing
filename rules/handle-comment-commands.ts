@@ -2,6 +2,7 @@ import { danger, peril } from "danger";
 import * as path from "path";
 import { CLIEngine } from "eslint";
 import * as Prettier from "prettier";
+import * as octokit from "@octokit/rest"
 
 type FileData = {
   filename: string;
@@ -238,6 +239,15 @@ const createCommit = async (
   changedFiles: FormatResult[],
   PRBranchInfo: BranchInfo
 ) => {
+  console.log("authenticating octokit with token that can push")
+  const githubClient = new octokit()
+
+  githubClient.authenticate({
+    type: 'token',
+    token: peril.env.GITHUB_ACCESS_TOKEN,
+  })
+  // peril.env.GITHUB_ACCESS_TOKEN:
+
   console.log("creating commit", {
     changedFiles,
     PRBranchInfo
@@ -249,10 +259,10 @@ const createCommit = async (
       repo: PRBranchInfo.repo,
       tree_sha: PRBranchInfo.sha
     };
-
+    githubClient
     console.log("old tree args", oldTreeArgs);
 
-    const tree = (await danger.github.api.gitdata.getTree(oldTreeArgs)).data;
+    const tree = (await githubClient.gitdata.getTree(oldTreeArgs)).data;
 
     console.log("old tree data", tree);
 
@@ -272,7 +282,7 @@ const createCommit = async (
 
     console.log("new tree args", newTreeArgs);
 
-    const newTree = (await danger.github.api.gitdata.createTree(newTreeArgs))
+    const newTree = (await githubClient.gitdata.createTree(newTreeArgs))
       .data;
 
     console.log("new tree data", newTree);
@@ -287,7 +297,7 @@ const createCommit = async (
 
     console.log("new commit args", commitArgs);
 
-    const commit = (await danger.github.api.gitdata.createCommit(commitArgs))
+    const commit = (await githubClient.gitdata.createCommit(commitArgs))
       .data;
 
     console.log("new commit data", commit);
@@ -303,7 +313,7 @@ const createCommit = async (
 
     console.log("update ref args", updateRefArgs);
 
-    const refUpdate = (await danger.github.api.gitdata.updateReference(
+    const refUpdate = (await githubClient.gitdata.updateReference(
       updateRefArgs
     )).data;
 
@@ -416,7 +426,7 @@ export const shouldFormat = async () => {
 };
 
 export default async () => {
-  console.log('test', peril.env)
-  console.log('b', process.env)
+  console.log('test', peril.env.GITHUB_ACCESS_TOKEN)
+
   return shouldFormat();
 };
