@@ -256,7 +256,7 @@ const createCommit = async (
   // });
 
   const repoCloneDir = path.join(process.cwd(), `_pr_clone_${danger.github.issue.number}`)
-  
+  try {
   // const cloneCmd = `git clone --single-branch --branch ${PRBranchInfo.ref} git@github.com:${PRBranchInfo.owner}/${PRBranchInfo.repo}.git ${repoCloneDir}`
   const cloneCmd = `git clone --single-branch --branch ${PRBranchInfo.ref} https://${peril.env.GITHUB_ACCESS_TOKEN}@github.com/${PRBranchInfo.owner}/${PRBranchInfo.repo}.git ${repoCloneDir}`
   // GITHUB_TOKEN
@@ -274,15 +274,20 @@ const createCommit = async (
     await childProcess.execSync(gitAddCmd, gitExecCommandsArg)
   }))
 
+  childProcess.execSync(`git config user.email "misiek.piechowiak@gmail.com"`)
+  childProcess.execSync(`git config user.name "pieh-peril-test"`)
+  
 
-  const commitCmd = `git commit --author="pieh-peril-test<no-reply@example.com>"  -m "chore: format"`
+  const commitCmd = `git commit --author="pieh-peril-test<misiek.piechowiak@gmail.com>"  -m "chore: format"`
   console.log(`commiting: ${commitCmd}`)
   childProcess.execSync(commitCmd, gitExecCommandsArg)
 
   const pushCmd = `git push origin ${PRBranchInfo.ref}`
   console.log(`pushing: ${pushCmd}`)
   childProcess.execSync(pushCmd, gitExecCommandsArg)
-
+  } catch(e) {
+    console.log('error', e)
+  }
   // cleanup - delete directory
   const cleanupCmd = `rm -rf ${repoCloneDir}`
   console.log(`cleanup: "${cleanupCmd}"`)
