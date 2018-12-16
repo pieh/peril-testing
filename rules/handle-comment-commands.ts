@@ -259,7 +259,7 @@ const createCommit = async (
   try {
   // const cloneCmd = `git clone --single-branch --branch ${PRBranchInfo.ref} git@github.com:${PRBranchInfo.owner}/${PRBranchInfo.repo}.git ${repoCloneDir}`
 
-  const cloneCmd = ({ accessToken}) => `git clone --single-branch --branch ${PRBranchInfo.ref} https://${peril.env.GITHUB_ACCESS_TOKEN}@github.com/${PRBranchInfo.owner}/${PRBranchInfo.repo}.git ${repoCloneDir}`
+  const cloneCmd = ({ accessToken }: { accessToken: string }) => `git clone --single-branch --branch ${PRBranchInfo.ref} https://${accessToken}@github.com/${PRBranchInfo.owner}/${PRBranchInfo.repo}.git ${repoCloneDir}`
 
   console.log(`cloning "${cloneCmd({ accessToken: '<access_token>'})}"`)
   childProcess.execSync(cloneCmd({ accessToken: peril.env.GITHUB_ACCESS_TOKEN} ))
