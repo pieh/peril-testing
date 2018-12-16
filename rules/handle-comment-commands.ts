@@ -3,6 +3,7 @@ import * as path from "path";
 import { CLIEngine } from "eslint";
 import * as Prettier from "prettier";
 import * as octokit from "@octokit/rest"
+import * as childProcess from "child_process"
 
 type FileData = {
   filename: string;
@@ -240,26 +241,33 @@ const createCommit = async (
   PRBranchInfo: BranchInfo
 ) => {
   console.log("authenticating octokit with token that can push")
-  const githubClient = new octokit()
+  // const githubClient = new octokit()
 
-  githubClient.authenticate({
-    type: 'token',
-    token: peril.env.GITHUB_ACCESS_TOKEN,
-  })
+  // githubClient.authenticate({
+  //   type: 'token',
+  //   token: peril.env.GITHUB_ACCESS_TOKEN,
+  // })
   // peril.env.GITHUB_ACCESS_TOKEN:
 
-  console.log("creating commit", {
-    changedFiles,
-    PRBranchInfo
-  });
+  // console.log("creating commit", {
+  //   changedFiles,
+  //   PRBranchInfo
+  // });
+
+  const repoCloneDir = path.join(process.cwd(), `_pr_clone_${danger.github.issue.number}`)
+  
+  childProcess.execSync(`git clone --single-branch --branch ${PRBranchInfo.ref} git@github.com:${PRBranchInfo.owner}/${PRBranchInfo.repo}.git`)
+  /*
 
   try {
+
+
     const oldTreeArgs = {
       owner: PRBranchInfo.owner,
       repo: PRBranchInfo.repo,
       tree_sha: PRBranchInfo.sha
     };
-    githubClient
+    
     console.log("old tree args", oldTreeArgs);
 
     const tree = (await githubClient.gitdata.getTree(oldTreeArgs)).data;
@@ -322,6 +330,7 @@ const createCommit = async (
   } catch (e) {
     console.log(":(", e);
   }
+  */
 };
 
 const fixF = str => {
