@@ -237,6 +237,10 @@ const extToFormatter: { [index: string]: string } = {
   ".scss": `prettier`
 };
 
+const makeMDListItem = content => content.split(`\n`)
+.map((line, index) => (index === 0 ? `* ${line}` : `  ${line}`))
+.join("\n")
+
 const createCommenter = (PRInfo: PRInfo) => {
   let previousBody: string = "";
   let comment_id: Number = 0;
@@ -250,10 +254,7 @@ const createCommenter = (PRInfo: PRInfo) => {
   return async (content: string) => {
     let body = content;
 
-    const listItemContent = content
-      .split(`\n`)
-      .map((line, index) => (index === 0 ? `* ${line}` : `  ${line}`))
-      .join("\n");
+    const listItemContent = makeMDListItem(content)
 
     if (previousBody !== null) {
       body = `${previousBody}\n${listItemContent}`;
@@ -301,10 +302,10 @@ const createCommit = async (
   );
   try {
     const mdListOfChangedFiles = changedFiles
-      .map(fileData => `* \`fileData.filename\``)
+      .map(fileData => `* \`${fileData.filename}\``)
       .join("\n");
     await comment(
-      `We can format files:\n${mdListOfChangedFiles}\nand format is in progress`
+      `Format in progress for following files:\n${mdListOfChangedFiles}`
     );
 
     const cloneCmd = ({ accessToken }: { accessToken: string }) =>
@@ -519,14 +520,14 @@ export const shouldFormat = async () => {
             })
             .join(`\n\n`);
 
-          return (
-            `\`${fileResult.filename}\`:\n` +
+          return makeMDListItem(
+            `\`${fileResult.filename}\`:\n\n` +
             `\`\`\`\n` +
             fixF(errorsInFile) +
             `\n\`\`\``
           );
         })
-        .join(`\n\n`);
+        .join(`\n`);
 
       await comment(
         `We can't automatically fix at least some errors in:\n${msg}`
