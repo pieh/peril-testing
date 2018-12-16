@@ -12,10 +12,10 @@ import { DH_NOT_SUITABLE_GENERATOR } from "constants";
 //   org: "gatsbyjs"
 // })).data
 */
-// const GatsbyAdminTeamID = 2772524;
+const GatsbyAdminTeamID = 2772524;
 
 // below is actually Starters team - testing if it will work correctly
-const GatsbyAdminTeamID = 1942251;
+// const GatsbyAdminTeamID = 1942251;
 const FormatTriggerComment = "hokus pokus format".toLowerCase()
 
 type FileData = {
