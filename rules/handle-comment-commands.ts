@@ -2,9 +2,9 @@ import { danger, peril } from "danger";
 import * as path from "path";
 import { CLIEngine } from "eslint";
 import * as Prettier from "prettier";
-import * as octokit from "@octokit/rest"
-import * as childProcess from "child_process"
-import * as fs from "fs-extra"
+import * as octokit from "@octokit/rest";
+import * as childProcess from "child_process";
+import * as fs from "fs-extra";
 
 type FileData = {
   filename: string;
@@ -238,26 +238,27 @@ const extToFormatter: { [index: string]: string } = {
 };
 
 const createCommenter = (PRInfo: PRInfo) => {
-  let previousBody: string = ''
-  let comment_id: Number = 0
-  
+  let previousBody: string = "";
+  let comment_id: Number = 0;
+
   const commentArgs = {
     owner: PRInfo.base.owner,
     repo: PRInfo.base.repo,
-    number: danger.github.issue.number,
-  }
+    number: danger.github.issue.number
+  };
 
+  return async (content: string) => {
+    let body = content;
 
-
-  return async (content:string) => {
-    let body = content
-
-    const listItemContent = content.split(`\n`).map((line, index) => index === 0 ? `* ${line}`: `  ${line}`).join('\n')
+    const listItemContent = content
+      .split(`\n`)
+      .map((line, index) => (index === 0 ? `* ${line}` : `  ${line}`))
+      .join("\n");
 
     if (previousBody !== null) {
-      body = listItemContent
+      body = listItemContent;
     } else {
-      body = `${previousBody}\n${listItemContent}`
+      body = `${previousBody}\n${listItemContent}`;
     }
 
     if (comment_id) {
@@ -265,74 +266,101 @@ const createCommenter = (PRInfo: PRInfo) => {
         ...commentArgs,
         body,
         comment_id
-      }
+      };
 
       console.log("update comment args", createCommentArgs);
-      const commentData = (await danger.github.api.issues.editComment(createCommentArgs)).data
+      const commentData = (await danger.github.api.issues.editComment(
+        createCommentArgs
+      )).data;
       console.log("updated comment", commentData);
     } else {
       const createCommentArgs = {
         ...commentArgs,
-        body,
-      }
+        body
+      };
       console.log("create comment args", createCommentArgs);
-      const commentData = (await danger.github.api.issues.createComment(createCommentArgs)).data;
-      console.log('created comment', commentData)
-      comment_id = commentData.id
+      const commentData = (await danger.github.api.issues.createComment(
+        createCommentArgs
+      )).data;
+      console.log("created comment", commentData);
+      comment_id = commentData.id;
     }
 
-    previousBody = body
-  }
-}
+    previousBody = body;
+  };
+};
 
 const createCommit = async (
   changedFiles: FormatResult[],
   PRBranchInfo: BranchInfo,
   comment: Function
 ) => {
-  const repoCloneDir = path.join(process.cwd(), `_pr_clone_${danger.github.issue.number}`)
+  const repoCloneDir = path.join(
+    process.cwd(),
+    `_pr_clone_${danger.github.issue.number}`
+  );
   try {
-    const mdListOfChangedFiles = changedFiles.map(fileData => `* \`fileData.filename\``).join('\n')
-    await comment(`We can format files:\n${mdListOfChangedFiles}\nand format is in progress`)
+    const mdListOfChangedFiles = changedFiles
+      .map(fileData => `* \`fileData.filename\``)
+      .join("\n");
+    await comment(
+      `We can format files:\n${mdListOfChangedFiles}\nand format is in progress`
+    );
 
+    const cloneCmd = ({ accessToken }: { accessToken: string }) =>
+      `git clone --single-branch --branch ${
+        PRBranchInfo.ref
+      } https://${accessToken}@github.com/${PRBranchInfo.owner}/${
+        PRBranchInfo.repo
+      }.git ${repoCloneDir}`;
 
-    const cloneCmd = ({ accessToken }: { accessToken: string }) => `git clone --single-branch --branch ${PRBranchInfo.ref} https://${accessToken}@github.com/${PRBranchInfo.owner}/${PRBranchInfo.repo}.git ${repoCloneDir}`
-
-    console.log(`cloning "${cloneCmd({ accessToken: '<access_token>'})}"`)
-    childProcess.execSync(cloneCmd({ accessToken: peril.env.GITHUB_ACCESS_TOKEN} ))
+    console.log(`cloning "${cloneCmd({ accessToken: "<access_token>" })}"`);
+    childProcess.execSync(
+      cloneCmd({ accessToken: peril.env.GITHUB_ACCESS_TOKEN })
+    );
 
     const gitExecCommandsArg = {
       cwd: repoCloneDir
-    }
+    };
 
-    await Promise.all(changedFiles.map(async fileData => {
-      await fs.outputFile(path.join(repoCloneDir, fileData.filename), fileData.output)
-      const gitAddCmd  = `git add ${fileData.filename}`
-      console.log(`changed ${fileData.filename} and staging: ${gitAddCmd}`)
-      await childProcess.execSync(gitAddCmd, gitExecCommandsArg)
-    }))
+    await Promise.all(
+      changedFiles.map(async fileData => {
+        await fs.outputFile(
+          path.join(repoCloneDir, fileData.filename),
+          fileData.output
+        );
+        const gitAddCmd = `git add ${fileData.filename}`;
+        console.log(`changed ${fileData.filename} and staging: ${gitAddCmd}`);
+        await childProcess.execSync(gitAddCmd, gitExecCommandsArg);
+      })
+    );
 
-    childProcess.execSync(`git config user.email "misiek.piechowiak@gmail.com"`, gitExecCommandsArg)
-    childProcess.execSync(`git config user.name "pieh-peril-test"`, gitExecCommandsArg)
-    
+    childProcess.execSync(
+      `git config user.email "misiek.piechowiak@gmail.com"`,
+      gitExecCommandsArg
+    );
+    childProcess.execSync(
+      `git config user.name "pieh-peril-test"`,
+      gitExecCommandsArg
+    );
 
-    const commitCmd = `git commit --author="pieh-peril-test<misiek.piechowiak@gmail.com>"  -m "chore: format"`
-    console.log(`commiting: ${commitCmd}`)
-    childProcess.execSync(commitCmd, gitExecCommandsArg)
+    const commitCmd = `git commit --author="pieh-peril-test<misiek.piechowiak@gmail.com>"  -m "chore: format"`;
+    console.log(`commiting: ${commitCmd}`);
+    childProcess.execSync(commitCmd, gitExecCommandsArg);
 
-    const pushCmd = `git push origin ${PRBranchInfo.ref}`
-    console.log(`pushing: ${pushCmd}`)
-    childProcess.execSync(pushCmd, gitExecCommandsArg)
+    const pushCmd = `git push origin ${PRBranchInfo.ref}`;
+    console.log(`pushing: ${pushCmd}`);
+    childProcess.execSync(pushCmd, gitExecCommandsArg);
 
-    await comment(`Format complete`)
-  } catch(e) {
-    await comment(`Something bad happened :(`)
-    console.log('error', e)
+    await comment(`Format complete`);
+  } catch (e) {
+    await comment(`Something bad happened :(`);
+    console.log("error", e);
   }
   // cleanup - delete directory
-  const cleanupCmd = `rm -rf ${repoCloneDir}`
-  console.log(`cleanup: "${cleanupCmd}"`)
-  childProcess.execSync(cleanupCmd)
+  const cleanupCmd = `rm -rf ${repoCloneDir}`;
+  console.log(`cleanup: "${cleanupCmd}"`);
+  childProcess.execSync(cleanupCmd);
 
   /*
   try {
@@ -470,7 +498,7 @@ export const shouldFormat = async () => {
 
     console.log("formatResults", formatResults);
 
-    const comment = createCommenter(PRInfo)
+    const comment = createCommenter(PRInfo);
 
     // show inline message about files that can't be fully autofixed
     const filesThatCantBeFullyFixes = formatResults.filter(
@@ -500,7 +528,9 @@ export const shouldFormat = async () => {
         })
         .join(`\n\n`);
 
-      await comment(`We can't automatically fix at least some errors in:\n${msg}`)
+      await comment(
+        `We can't automatically fix at least some errors in:\n${msg}`
+      );
       // const createCommentArgs = {
       //   owner: PRInfo.base.owner,
       //   repo: PRInfo.base.repo,
@@ -513,21 +543,17 @@ export const shouldFormat = async () => {
       // const commentData = (await danger.github.api.issues.createComment(createCommentArgs)).data;
       // console.log('created comment', commentData)
     }
+
+    const filesThatCanBeUpdated = formatResults.filter(
+      fileResult => fileResult.status === `needUpdate`
+    );
+    if (filesThatCanBeUpdated.length > 0) {
+      console.log("creating commit");
+      await createCommit(filesThatCanBeUpdated, PRInfo.head, comment);
+    }
   } catch (e) {
     console.log("err", e);
   }
-
-  try {
-  const filesThatCanBeUpdated = formatResults.filter(
-    fileResult => fileResult.status === `needUpdate`
-  );
-  if (filesThatCanBeUpdated.length > 0) {
-    console.log("creating commit");
-    await createCommit(filesThatCanBeUpdated, PRInfo.head, comment);
-  }
-} catch(e) {
-  console.log('cant commit', e)
-}
 };
 
 export default async () => {
