@@ -450,7 +450,7 @@ export const shouldFormat = async () => {
       // github api throws if user is not in team so lets catch that
       console.log("failed membership check", e);
     }
-
+/*
     if (!byUserInAdminTeam) {
       console.log(`by someone not in Admin team`);
       await comment(
@@ -458,7 +458,7 @@ export const shouldFormat = async () => {
       );
       return;
     }
-
+*/
     // Assign formatters (based on file extension) and filter out files that
     // aren't linted/formatted
     const fileTasks: FileTask[] = PRInfo.files
