@@ -506,7 +506,7 @@ export const shouldFormat = async () => {
             `\`${fileResult.filename}\`: <details><summary>Details</summary>\n` +
               `\`\`\`\n` +
               fixF(errorsInFile) +
-              `\n\`\`\`'n</details>`
+              `\n\`\`\`\n</details>`
           );
         })
         .join(`\n`);
