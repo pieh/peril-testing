@@ -5,7 +5,7 @@ import * as Prettier from "prettier";
 import * as octokit from "@octokit/rest";
 import * as childProcess from "child_process";
 import * as fs from "fs-extra";
-import { codeFrameColumns } from '@babel/code-frame';
+import { codeFrameColumns } from "@babel/code-frame";
 
 /*
 // const gatsbyTeams = (await API.orgs.getTeams({
@@ -16,7 +16,7 @@ const GatsbyAdminTeamID = `2772524`;
 
 // below is actually Starters team - testing if it will work correctly
 // const GatsbyAdminTeamID = `1942251`;
-const FormatTriggerComment = "hokus pokus format".toLowerCase()
+const FormatTriggerComment = "hokus pokus format".toLowerCase();
 
 type FileData = {
   filename: string;
@@ -161,16 +161,19 @@ const configureFormatter = async (prInfo: PRInfo) => {
       result.messages &&
       result.messages.length > 0 &&
       result.messages.map((eslintMessage: EslintMessage) => {
-        const location = { start: { line: eslintMessage.line, column: eslintMessage.column } };
+        const location = {
+          start: { line: eslintMessage.line, column: eslintMessage.column }
+        };
         if (eslintMessage.endColumn && eslintMessage.endLine) {
           location.end = {
-            line: eslintMessage.endLine, column: eslintMessage.endColumn
-          }
+            line: eslintMessage.endLine,
+            column: eslintMessage.endColumn
+          };
         }
 
-        const codeFrame = codeFrameColumns(content,location, {
+        const codeFrame = codeFrameColumns(content, location, {
           message: eslintMessage.message
-        })
+        });
         return {
           msg: codeFrame,
           line: eslintMessage.line,
@@ -261,7 +264,7 @@ const extToFormatter: { [index: string]: string } = {
   ".scss": `prettier`
 };
 
-const makeMDListItem = (content:string) =>
+const makeMDListItem = (content: string) =>
   content
     .split(`\n`)
     .map((line, index) => (index === 0 ? `* ${line}` : `  ${line}`))
@@ -401,7 +404,9 @@ export const shouldFormat = async () => {
       return;
     }
 
-    const includeFormatCommand = danger.github.comment.body.toLowerCase().includes(FormatTriggerComment);
+    const includeFormatCommand = danger.github.comment.body
+      .toLowerCase()
+      .includes(FormatTriggerComment);
 
     if (!includeFormatCommand) {
       console.log(`comment doesn't include "${FormatTriggerComment}"`);
@@ -423,13 +428,12 @@ export const shouldFormat = async () => {
     }
 
     try {
-      const userAuthedAPI = new octokit()
+      const userAuthedAPI = new octokit();
       userAuthedAPI.authenticate({
-        type: 'token',
+        type: "token",
         token: peril.env.GITHUB_ACCESS_TOKEN
-      })
+      });
 
-      
       const membershipData = (await userAuthedAPI.orgs.getTeamMembership({
         team_id: GatsbyAdminTeamID,
         username: danger.github.issue.user.login
@@ -440,7 +444,7 @@ export const shouldFormat = async () => {
       }
     } catch (e) {
       // github api throws if user is not in team so lets catch that
-      console.log('failed membership check', e)
+      console.log("failed membership check", e);
     }
 
     if (!byUserInAdminTeam) {
