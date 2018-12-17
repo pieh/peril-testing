@@ -503,10 +503,10 @@ export const shouldFormat = async () => {
             .join(`\n\n`);
 
           return makeMDListItem(
-            `\`${fileResult.filename}\`:\n\n` +
+            `\`${fileResult.filename}\`: <details><summary>Details</summary>\n` +
               `\`\`\`\n` +
               fixF(errorsInFile) +
-              `\n\`\`\``
+              `\n\`\`\`'n</details>`
           );
         })
         .join(`\n`);
