@@ -175,7 +175,7 @@ const configureFormatter = async (prInfo: PRInfo) => {
           message: eslintMessage.message
         });
 
-        console.log('should have message', {
+        console.log('should have message\n', codeFrame, {
           message: eslintMessage.message
         })
         return {
