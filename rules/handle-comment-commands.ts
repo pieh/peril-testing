@@ -7,8 +7,6 @@ import * as childProcess from "child_process";
 import * as fs from "fs-extra";
 import { codeFrameColumns } from "@babel/code-frame";
 
-import { version } from "@babel/code-frame/package.json";
-
 /*
 // const gatsbyTeams = (await API.orgs.getTeams({
 //   org: "gatsbyjs"
@@ -173,7 +171,7 @@ const configureFormatter = async (prInfo: PRInfo) => {
           };
         }
 
-        const codeFrame = codeFrameColumns(content, location, {
+        const codeFrame = codeFrameColumns(result.output || content, location, {
           message: eslintMessage.message
         });
 
@@ -531,6 +529,5 @@ export const shouldFormat = async () => {
 };
 
 export default async () => {
-  console.log('code frame version', version)
   return await shouldFormat();
 };
