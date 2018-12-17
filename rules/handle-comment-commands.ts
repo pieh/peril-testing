@@ -174,6 +174,10 @@ const configureFormatter = async (prInfo: PRInfo) => {
         const codeFrame = codeFrameColumns(content, location, {
           message: eslintMessage.message
         });
+
+        console.log('should have message', {
+          message: eslintMessage.message
+        })
         return {
           msg: codeFrame,
           line: eslintMessage.line,
