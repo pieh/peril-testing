@@ -5,7 +5,7 @@ import * as Prettier from "prettier";
 import * as octokit from "@octokit/rest";
 import * as childProcess from "child_process";
 import * as fs from "fs-extra";
-import { DH_NOT_SUITABLE_GENERATOR } from "constants";
+import { codeFrameColumns } from '@babel/code-frame';
 
 /*
 // const gatsbyTeams = (await API.orgs.getTeams({
@@ -54,7 +54,9 @@ type ErrorDetail = {
 type EslintMessage = {
   message: string;
   line: Number;
-  endLine: Number;
+  column: Number;
+  endLine?: Number;
+  endColumn?: Number;
 };
 
 type IntermediateFormatResult = {
@@ -159,8 +161,18 @@ const configureFormatter = async (prInfo: PRInfo) => {
       result.messages &&
       result.messages.length > 0 &&
       result.messages.map((eslintMessage: EslintMessage) => {
+        const location = { start: { line: eslintMessage.line, column: eslintMessage.column } };
+        if (eslintMessage.endColumn && eslintMessage.endLine) {
+          location.end = {
+            line: eslintMessage.endLine, column: eslintMessage.endColumn
+          }
+        }
+
+        const codeFrame = codeFrameColumns(content,location, {
+          message: eslintMessage.message
+        })
         return {
-          msg: eslintMessage.message,
+          msg: codeFrame,
           line: eslintMessage.line,
           endLine: eslintMessage.endLine
         };
@@ -249,7 +261,7 @@ const extToFormatter: { [index: string]: string } = {
   ".scss": `prettier`
 };
 
-const makeMDListItem = content =>
+const makeMDListItem = (content:string) =>
   content
     .split(`\n`)
     .map((line, index) => (index === 0 ? `* ${line}` : `  ${line}`))
@@ -376,92 +388,6 @@ const createCommit = async (
   const cleanupCmd = `rm -rf ${repoCloneDir}`;
   console.log(`cleanup: "${cleanupCmd}"`);
   childProcess.execSync(cleanupCmd);
-
-  /*
-  try {
-    // console.log("authenticating octokit with token that can push")
-    // const githubClient = new octokit()
-
-    // githubClient.authenticate({
-    //   type: 'token',
-    //   token: peril.env.GITHUB_ACCESS_TOKEN,
-    // })
-    // peril.env.GITHUB_ACCESS_TOKEN:
-
-    // console.log("creating commit", {
-    //   changedFiles,
-    //   PRBranchInfo
-    // });
-
-    const oldTreeArgs = {
-      owner: PRBranchInfo.owner,
-      repo: PRBranchInfo.repo,
-      tree_sha: PRBranchInfo.sha
-    };
-    
-    console.log("old tree args", oldTreeArgs);
-
-    const tree = (await githubClient.gitdata.getTree(oldTreeArgs)).data;
-
-    console.log("old tree data", tree);
-
-    const newTreeArgs = {
-      owner: PRBranchInfo.owner,
-      repo: PRBranchInfo.repo,
-      tree: changedFiles.map(fileData => {
-        return {
-          path: fileData.filename,
-          mode: "100644",
-          type: "blob",
-          content: fileData.output
-        };
-      }),
-      base_tree: tree.sha
-    };
-
-    console.log("new tree args", newTreeArgs);
-
-    const newTree = (await githubClient.gitdata.createTree(newTreeArgs))
-      .data;
-
-    console.log("new tree data", newTree);
-
-    const commitArgs = {
-      owner: PRBranchInfo.owner,
-      repo: PRBranchInfo.repo,
-      message: "chore: format",
-      tree: newTree.sha,
-      parents: [PRBranchInfo.sha]
-    };
-
-    console.log("new commit args", commitArgs);
-
-    const commit = (await githubClient.gitdata.createCommit(commitArgs))
-      .data;
-
-    console.log("new commit data", commit);
-
-    // update branch to point to new commit
-    const updateRefArgs = {
-      owner: PRBranchInfo.owner,
-      repo: PRBranchInfo.repo,
-      ref: `heads/${PRBranchInfo.ref}`,
-      sha: commit.sha,
-      force: false
-    };
-
-    console.log("update ref args", updateRefArgs);
-
-    const refUpdate = (await githubClient.gitdata.updateReference(
-      updateRefArgs
-    )).data;
-
-    console.log("update ref data", refUpdate);
-    // console.log('tree', tree)
-  } catch (e) {
-    console.log(":(", e);
-  }
-  */
 };
 
 const fixF = str => {
@@ -513,8 +439,8 @@ export const shouldFormat = async () => {
         byUserInAdminTeam = true;
       }
     } catch (e) {
-      console.log('failed membership check', e)
       // github api throws if user is not in team so lets catch that
+      console.log('failed membership check', e)
     }
 
     if (!byUserInAdminTeam) {
@@ -580,17 +506,6 @@ export const shouldFormat = async () => {
       await comment(
         `We can't automatically fix at least some errors in:\n${msg}`
       );
-      // const createCommentArgs = {
-      //   owner: PRInfo.base.owner,
-      //   repo: PRInfo.base.repo,
-      //   number: danger.github.issue.number,
-      //   body: msg
-      // };
-
-      // console.log("create comment args", createCommentArgs);
-
-      // const commentData = (await danger.github.api.issues.createComment(createCommentArgs)).data;
-      // console.log('created comment', commentData)
     }
 
     const filesThatCanBeUpdated = formatResults.filter(
