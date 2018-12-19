@@ -13,6 +13,7 @@ export const closePullRequestAndComment = async () => {
   const gh = danger.github
   const api = gh.api
 
+  
   // Details about the repo.
   const owner = gh.thisPR.owner
   const repo = gh.thisPR.repo
@@ -23,7 +24,7 @@ export const closePullRequestAndComment = async () => {
 
   // Leave a comment redirecting the collaborator to the monorepo
   // And close this pull request
-  await api.pulls.update({
+  await api.pullRequests.update({
     owner,
     repo,
     number,
