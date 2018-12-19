@@ -31,6 +31,9 @@
       "issue_comment.created": [
         "pieh/peril-testing@rules/handle-comment-commands.ts"
       ]
+    },
+    "pieh/gatsby-starter-default-nprogress" : {
+      "pull_request.opened": ["pieh/peril-testing@rules/pull-request-on-starter.ts"]
     }
   }
 }
