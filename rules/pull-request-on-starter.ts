@@ -1,4 +1,4 @@
-import { danger } from "danger"
+import { danger, markdown } from "danger"
 
 // TODO: Improve comment
 export const comment = (username: string) => `
@@ -28,9 +28,11 @@ export const closePullRequestAndComment = async () => {
     owner,
     repo,
     number,
-    body: comment(username),
+    // body: comment(username),
     state: "closed",
   })
+
+  markdown(comment(username))
 }
 
 export default async () => {
